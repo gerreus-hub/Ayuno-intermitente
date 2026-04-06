@@ -3,133 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno IA</title>
+    <title>Mi Ayuno</title>
     <style>
-        /* Estilos sencillos y elegantes */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #121212;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
+        :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        /* CABECERA */
+        .fase-info { text-align: center; margin-bottom: 10px; }
+        .fase-titulo { font-weight: bold; color: #d4a373; font-size: 1.1rem; }
+
+        /* EL CÍRCULO DINÁMICO */
+        .reloj-container { position: relative; width: 280px; height: 280px; margin: 20px 0; }
+        svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+        .fondo-gris { stroke: #eee; }
+        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
+
+        .tiempo-centro { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .reloj-grande { font-size: 2.8rem; font-weight: bold; }
+
+        /* BOTÓN REDONDEADO */
+        .btn-principal { 
+            background: linear-gradient(to right, #ff7e5f, #feb47b); 
+            color: white; border: none; padding: 15px 50px; 
+            border-radius: 12px; font-size: 1.1rem; font-weight: bold; 
+            box-shadow: 0 4px 15px rgba(255, 126, 95, 0.3); cursor: pointer;
         }
 
-        .card {
-            background: #1e1e1e;
-            padding: 20px;
-            width: 100%;
-            max-width: 350px;
-            text-align: center;
-            /* TUS BOTONES Y CAJAS CON ESQUINAS APENAS REDONDEADAS */
-            border-radius: 8px; 
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .timer {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #4ade80;
-        }
-
-        /* EL BOTÓN QUE PEDISTE */
-        button {
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            /* ESQUINAS APENAS REDONDEADAS (4px a 8px es lo ideal) */
-            border-radius: 8px;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        button:active {
-            background-color: #2563eb;
-        }
-
-        .status-tag {
-            background: #333;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            color: #aaa;
-        }
-
-        .health-info {
-            display: flex;
-            justify-content: space-around;
-            font-size: 0.9rem;
-            margin-top: 15px;
-        }
+        /* REGISTRO DE AGUA */
+        .agua-card { background: white; width: 90%; max-width: 350px; padding: 20px; border-radius: 20px; margin-top: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); text-align: center; }
+        .agua-controles { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 10px; }
+        .btn-agua { background: #e0f2fe; color: #0369a1; border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Mi Ayuno</h2>
-        <div class="status-tag" id="fase">Estado: Alimentado</div>
-        <div class="timer" id="reloj">00:00:00</div>
-        <button id="btnAccion" onclick="toggleAyuno()">Iniciar Ayuno</button>
+    <div class="fase-info">
+        <div class="fase-titulo" id="fase-nombre">Fase anabólica</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">Comenzó la digestión</div>
     </div>
 
-    <div class="card">
-        <h3>Salud y Calorías</h3>
-        <div class="health-info">
-            <div>👣 <span id="pasos">8420</span></div>
-            <div>🔥 <span id="kcal">0</span> kcal</div>
+    <div class="reloj-container">
+        <svg viewBox="0 0 280 280">
+            <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
+            <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
+        </svg>
+        <div class="tiempo-centro">
+            <div style="font-size: 0.8rem; opacity: 0.6;">Tiempo transcurrido</div>
+            <div class="reloj-grande" id="reloj">00:00:00</div>
         </div>
-        <button style="margin-top: 15px; background-color: #ec4899;" onclick="alert('Cámara se abrirá aquí')">📷 Subir Comida</button>
+    </div>
+
+    <button class="btn-principal" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
+
+    <div class="agua-card">
+        <div style="font-weight: bold;">Registro de agua</div>
+        <div style="font-size: 1.8rem; margin: 10px 0; color: #0369a1;"><span id="total-agua">0</span> ml</div>
+        <div class="agua-controles">
+            <button class="btn-agua" onclick="sumarAgua(-250)">-</button>
+            <span style="font-size: 0.9rem;">250 ml</span>
+            <button class="btn-agua" onclick="sumarAgua(250)">+</button>
+        </div>
     </div>
 
     <script>
-        let ayunando = false;
-        let tiempoInicio;
-        let intervalo;
+        let activo = false;
+        let inicio;
+        let cronometro;
+        let aguaTotal = 0;
 
-        function toggleAyuno() {
-            ayunando = !ayunando;
+        function controlarAyuno() {
+            activo = !activo;
             const btn = document.getElementById('btnAccion');
-            const fase = document.getElementById('fase');
-
-            if (ayunando) {
-                tiempoInicio = Date.now();
-                btn.innerText = "Detener y Comer";
-                btn.style.backgroundColor = "#ef4444";
-                fase.innerText = "Estado: Ayunando (Fase Anabólica)";
-                
-                intervalo = setInterval(actualizarReloj, 1000);
+            if(activo) {
+                inicio = Date.now();
+                btn.innerText = "Terminar";
+                btn.style.background = "#ddd"; btn.style.color = "#333";
+                cronometro = setInterval(update, 1000);
             } else {
-                clearInterval(intervalo);
+                clearInterval(cronometro);
                 btn.innerText = "Iniciar Ayuno";
-                btn.style.backgroundColor = "#3b82f6";
-                fase.innerText = "Estado: Alimentado";
-                document.getElementById('reloj').innerText = "00:00:00";
-                alert("¡Ayuno terminado! No olvides subir la foto de tu comida.");
+                btn.style.background = "linear-gradient(to right, #ff7e5f, #feb47b)"; btn.style.color = "white";
+                document.getElementById('aro').style.strokeDashoffset = 754;
             }
         }
 
-        function actualizarReloj() {
-            const ahora = Date.now();
-            const diferencia = ahora - tiempoInicio;
+        function update() {
+            const segs = Math.floor((Date.now() - inicio) / 1000);
+            const h = Math.floor(segs / 3600).toString().padStart(2, '0');
+            const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
+            const s = (segs % 60).toString().padStart(2, '0');
+            document.getElementById('reloj').innerText = `${h}:${m}:${s}`;
 
-            const horas = Math.floor(diferencia / 3600000);
-            const minutos = Math.floor((diferencia % 3600000) / 60000);
-            const segundos = Math.floor((diferencia % 60000) / 1000);
+            // Mueve el aro (meta 16h)
+            const progreso = Math.min(segs / (16 * 3600), 1);
+            document.getElementById('aro').style.strokeDashoffset = 754 - (754 * progreso);
 
-            document.getElementById('reloj').innerText = 
-                `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
-            
-            // Lógica simple de fases
-            if (horas >= 12) fase.innerText = "Estado: Quema de Grasa 🔥";
-            if (horas >= 16) fase.innerText = "Estado: Autofagia ♻️";
+            // Fases
+            if(segs > 43200) document.getElementById('fase-nombre').innerText = "Quema de grasa 🔥";
+        }
+
+        function sumarAgua(ml) {
+            aguaTotal = Math.max(0, aguaTotal + ml);
+            document.getElementById('total-agua').innerText = aguaTotal;
         }
     </script>
 </body>
