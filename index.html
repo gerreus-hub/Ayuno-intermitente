@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno Inteligente 2026</title>
+    <title>Mi Ayuno Inteligente v3</title>
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 50px; }
@@ -25,7 +25,7 @@
 
     <button class="config-btn" onclick="configurarClave()">⚙️</button>
 
-    <div id="fase-nombre" style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Fase anabólica</div>
+    <div style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Fase anabólica</div>
 
     <div class="reloj-container">
         <svg viewBox="0 0 280 280">
@@ -45,9 +45,9 @@
     </div>
 
     <div class="card">
-        <b>Registrar Comida (Gemini 3 Flash) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: Tortilla de patatas">
-        <div id="loading">✨ Analizando...</div>
+        <b>Registrar Comida (IA Universal) 🥗</b>
+        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: 2 tostadas con aguacate">
+        <div id="loading">✨ La IA está pensando...</div>
         <div style="display: flex; gap: 10px;">
             <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
             <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
@@ -60,8 +60,8 @@
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <b>Agua: <span id="total-agua">0</span> ml</b>
             <div>
-                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 8px 15px;">-</button>
-                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 8px 15px;">+ 250ml</button>
+                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 8px 15px; border-radius: 10px;">-</button>
+                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 8px 15px; border-radius: 10px;">+ 250ml</button>
             </div>
         </div>
     </div>
@@ -69,22 +69,40 @@
     <script>
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
         let kcalTotal = 0, aguaTotal = 0, activo = false, inicio, cronometro;
+        let MODELO_ACTIVO = "gemini-1.5-flash"; // Por defecto, pero el buscador lo actualizará
 
         function configurarClave() {
-            const key = prompt("Pega aquí tu clave NUEVA:", MI_LLAVE);
+            const key = prompt("Pega tu clave (asegúrate de que sea una nueva):", MI_LLAVE);
             if (key) {
                 localStorage.setItem('gemini_key', key.trim());
                 MI_LLAVE = key.trim();
-                alert("✅ Clave actualizada.");
+                alert("✅ Clave guardada. Intentando conectar...");
+                buscarModelo();
             }
         }
+
+        // FUNCIÓN DETECTIVE: Busca qué modelo tienes disponible
+        async function buscarModelo() {
+            if(!MI_LLAVE) return;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${MI_LLAVE}`);
+                const data = await res.json();
+                // Buscamos el modelo más nuevo (3 o 2) que sea 'flash'
+                const encontrado = data.models.find(m => m.name.includes('flash') && (m.name.includes('3') || m.name.includes('2')));
+                if(encontrado) {
+                    MODELO_ACTIVO = encontrado.name;
+                    console.log("Usando modelo detectado:", MODELO_ACTIVO);
+                }
+            } catch(e) { console.error("Error buscando modelo"); }
+        }
+        buscarModelo();
 
         async function llamarIA(promptText, img = null) {
             if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
             
-            // CAMBIO CRUCIAL: v1beta -> v1 (Versión estable de 2026)
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3-flash:generateContent?key=${MI_LLAVE}`;
+            // Usamos la URL del modelo detectado dinámicamente
+            const url = `https://generativelanguage.googleapis.com/v1beta/${MODELO_ACTIVO}:generateContent?key=${MI_LLAVE}`;
             
             const body = {
                 contents: [{ parts: [
@@ -102,14 +120,14 @@
                 const data = await res.json();
                 
                 if (data.error) {
-                    alert("Google dice: " + data.error.message);
+                    alert("Google dice: " + data.error.message + "\n\nIntenta generar una clave nueva en AI Studio.");
                 } else {
                     const txt = data.candidates[0].content.parts[0].text;
                     const num = txt.match(/\d+/);
                     if(num) {
                         kcalTotal += parseInt(num[0]);
                         document.getElementById('cal-total').innerText = kcalTotal;
-                        alert("¡Sumado! " + num[0] + " kcal");
+                        alert("¡Detectado! +" + num[0] + " kcal");
                     }
                 }
             } catch (e) { alert("Error de red."); }
