@@ -16,7 +16,7 @@
         .fondo-gris { stroke: #f0ede4; }
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
         .reloj-grande { font-size: 2.2rem; font-weight: bold; position: absolute; }
-        #loading { display: none; color: var(--azul); font-weight: bold; margin: 10px 0; font-size: 0.9rem; }
+        #loading { display: none; color: var(--azul); font-weight: bold; margin: 10px 0; text-align: center; }
         .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; border: none; cursor: pointer; }
     </style>
 </head>
@@ -38,64 +38,38 @@
 
     <div class="card">
         <b>Registrar Comida (IA) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:10px; margin:10px 0; border:1px solid #eee; border-radius:8px;" placeholder="Ej: 2 huevos y café">
-        <div id="loading">✨ La IA está analizando tu comida...</div>
+        <input type="text" id="textComida" style="width:100%; padding:10px; margin:10px 0; border:1px solid #eee; border-radius:8px;" placeholder="Ej: Tortilla de patatas">
+        <div id="loading">✨ Pensando...</div>
         <div style="display: flex; gap: 10px;">
             <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
             <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
         </div>
         <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
-        <p style="font-weight: bold; margin-top:15px;">Ingesta Hoy: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
-    </div>
-
-    <div class="card">
-        <button onclick="generarAnalisis()" style="width:100%; background:white; border:1px solid #ddd; padding:10px; border-radius:10px; color:#666;">📊 Resumen del Día</button>
-        <div id="analisis" style="display:none; margin-top:10px; background:#f0f7ff; padding:10px; border-radius:8px; font-size:0.9rem;"></div>
+        <p style="font-weight: bold; margin-top:15px;">Calorías de hoy: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
     </div>
 
     <script>
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
-        let activo = false, inicio, cronometro, kcalTotal = 0;
+        let kcalTotal = 0;
+        let activo = false, inicio, cronometro;
 
         function configurarClave() {
             const key = prompt("Pega aquí tu clave (AIza...):", MI_LLAVE);
             if (key) {
-                const cleanKey = key.trim();
-                localStorage.setItem('gemini_key', cleanKey);
-                MI_LLAVE = cleanKey;
-                alert("✅ Clave guardada. ¡Prueba ahora!");
+                localStorage.setItem('gemini_key', key.trim());
+                MI_LLAVE = key.trim();
+                alert("✅ Clave guardada.");
             }
-        }
-
-        function controlarAyuno() {
-            activo = !activo;
-            const btn = document.getElementById('btnAccion');
-            if(activo) {
-                inicio = Date.now(); btn.innerText = "Terminar";
-                cronometro = setInterval(update, 1000);
-            } else {
-                clearInterval(cronometro); btn.innerText = "Iniciar Ayuno";
-                document.getElementById('aro').style.strokeDashoffset = 754;
-            }
-        }
-
-        function update() {
-            const segs = Math.floor((Date.now() - inicio) / 1000);
-            const h = Math.floor(segs / 3600).toString().padStart(2, '0');
-            const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
-            const s = (segs % 60).toString().padStart(2, '0');
-            document.getElementById('reloj').innerText = `${h}:${m}:${s}`;
-            document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segs / 57600, 1));
         }
 
         async function llamarIA(prompt, img = null) {
             if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
             
-            // CORRECCIÓN: Usamos la versión estable 'v1' para España
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
+            // Endpoint v1beta con headers explícitos para evitar el "Method not found"
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
             
-            const body = {
+            const bodyData = {
                 contents: [{
                     parts: [
                         { text: prompt },
@@ -103,51 +77,59 @@
                     ]
                 }]
             };
-            
+
             try {
-                const res = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }, // ESTA ES LA CLAVE
+                    body: JSON.stringify(bodyData)
+                });
+                
                 const data = await res.json();
                 
                 if (data.error) {
-                    alert("Google dice: " + data.error.message);
+                    alert("Error Google: " + data.error.message);
                 } else {
-                    const textRes = data.candidates[0].content.parts[0].text;
-                    const numMatch = textRes.match(/\d+/);
-                    if (numMatch) {
-                        const num = parseInt(numMatch[0]);
-                        kcalTotal += num;
+                    const textoRespuesta = data.candidates[0].content.parts[0].text;
+                    const numero = textoRespuesta.match(/\d+/);
+                    if (numero) {
+                        kcalTotal += parseInt(numero[0]);
                         document.getElementById('cal-total').innerText = kcalTotal;
-                        alert("¡Detectado! +" + num + " kcal");
-                    } else {
-                        alert("Respuesta rara: " + textRes);
+                        alert("¡Sumadas " + numero[0] + " kcal!");
                     }
                 }
-            } catch (e) { 
-                alert("Error de conexión: " + e.message); 
+            } catch (e) {
+                alert("Error de conexión: " + e.message);
             }
             document.getElementById('loading').style.display = "none";
         }
 
-        function analizarTexto() { 
-            const t = document.getElementById('textComida').value; 
-            if(t) llamarIA("Calcula las calorías de esto: " + t + ". Responde solo con el número."); 
+        function analizarTexto() {
+            const t = document.getElementById('textComida').value;
+            if(t) llamarIA("Dime solo el número aproximado de calorías de: " + t);
             document.getElementById('textComida').value = "";
         }
 
         function analizarFoto(e) {
-            const file = e.target.files[0];
             const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64 = reader.result.split(',')[1];
-                llamarIA("¿Cuántas calorías tiene este plato? Responde solo con el número.", base64);
-            };
-            reader.readAsDataURL(file);
+            reader.onloadend = () => llamarIA("Dime solo el número de calorías que ves aquí:", reader.result.split(',')[1]);
+            reader.readAsDataURL(e.target.files[0]);
         }
 
-        function generarAnalisis() {
-            const a = document.getElementById('analisis');
-            a.style.display = "block";
-            a.innerText = "Hoy has consumido " + kcalTotal + " kcal. ¡Buen balance!";
+        function controlarAyuno() {
+            activo = !activo;
+            const btn = document.getElementById('btnAccion');
+            if(activo) {
+                inicio = Date.now(); btn.innerText = "Terminar";
+                cronometro = setInterval(() => {
+                    const segs = Math.floor((Date.now() - inicio) / 1000);
+                    document.getElementById('reloj').innerText = new Date(segs * 1000).toISOString().substr(11, 8);
+                    document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segs / 57600, 1));
+                }, 1000);
+            } else {
+                clearInterval(cronometro); btn.innerText = "Iniciar Ayuno";
+                document.getElementById('aro').style.strokeDashoffset = 754;
+            }
         }
     </script>
 </body>
