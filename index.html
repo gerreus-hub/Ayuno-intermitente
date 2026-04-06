@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno - Pro</title>
+    <title>Mi Ayuno Inteligente</title>
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 50px; }
         
-        /* TARJETAS */
-        .card { background: white; width: 95%; max-width: 400px; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
-        .card-header { font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-
         /* CÍRCULO */
         .reloj-container { position: relative; width: 250px; height: 250px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
@@ -20,23 +16,23 @@
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
         .reloj-grande { font-size: 2.5rem; font-weight: bold; position: absolute; }
 
-        /* BOTONES (Esquinas apenas redondeadas) */
+        /* BOTONES Y TARJETAS */
+        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
         button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 15px; width: 100%; font-size: 1.1rem; }
-        .btn-sec { background: #f0f0f0; color: #666; padding: 10px; margin-top: 10px; width: 100%; }
-
-        /* REGISTRO COMIDA */
-        .input-comida { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; box-sizing: border-box; }
+        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 15px; width: 100%; font-size: 1.1rem; margin-top: 10px; }
         
-        /* ANÁLISIS FINAL */
-        .analisis-box { background: #eef2ff; border-left: 4px solid var(--azul); padding: 15px; border-radius: 10px; margin-top: 10px; display: none; }
+        /* INPUTS */
+        .input-comida { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; font-size: 1rem; }
+        
+        /* ESTADO DE CARGA */
+        #loading { display: none; color: var(--azul); font-weight: bold; margin: 10px 0; }
+        
+        .analisis-box { background: #f0f7ff; border-left: 4px solid var(--azul); padding: 15px; border-radius: 10px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <div style="text-align: center; margin-bottom: 10px;">
-        <div id="fase-nombre" style="font-weight: bold; color: var(--naranja);">Estado: Alimentado</div>
-    </div>
+    <div id="fase-nombre" style="font-weight: bold; color: var(--naranja); margin-top: 10px;">Estado: Alimentado</div>
 
     <div class="reloj-container">
         <svg viewBox="0 0 280 280">
@@ -49,55 +45,61 @@
     <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
 
     <div class="card">
-        <div class="card-header">Actividad 🔥</div>
-        <div style="display: flex; justify-content: space-around; text-align: center;">
-            <div><span style="font-size: 1.2rem; font-weight: bold;">8,420</span><br><small>PASOS</small></div>
-            <div><span style="font-size: 1.2rem; font-weight: bold; color: #ef4444;">1,250</span><br><small>QUEMADAS</small></div>
+        <b>Actividad y Balance 🔥</b>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <span>Pasos: 8,420 👣</span>
+            <span style="color: #ef4444;">Quemadas: 1,250 kcal</span>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-header">Comidas y Calorías 🥗</div>
-        <input type="text" id="textComida" class="input-comida" placeholder="Ej: Pollo con arroz o subir foto...">
+        <b>Registrar Comida 🥗</b>
+        <p style="font-size: 0.8rem; opacity: 0.6;">Escribe o sube foto para calcular calorías</p>
+        <input type="text" id="textComida" class="input-comida" placeholder="Ej: 2 huevos y una tostada">
+        
+        <div id="loading">✨ La IA está analizando...</div>
+        
         <div style="display: flex; gap: 10px;">
-            <button onclick="sumarComidaText()" style="flex:1; background: var(--verde); color: white; padding: 10px;">+ Añadir</button>
-            <button onclick="alert('📸 Cámara')" style="flex:1; background: var(--azul); color: white; padding: 10px;">📸 Foto</button>
+            <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">Añadir Texto</button>
+            <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
         </div>
-        <div style="margin-top: 10px; font-weight: bold;">Total hoy: <span id="cal-total">0</span> kcal</div>
+        <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
+        
+        <div style="margin-top: 15px; font-weight: bold; font-size: 1.1rem;">
+            Ingesta de hoy: <span id="cal-total" style="color: var(--verde);">0</span> kcal
+        </div>
     </div>
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <b>Agua: <span id="total-agua">0</span> ml</b>
             <div>
-                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 5px 15px; border-radius: 5px;">-</button>
-                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 5px 15px; border-radius: 5px;">+</button>
+                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 8px 15px;">-</button>
+                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 8px 15px;">+ 250ml</button>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <button class="btn-sec" onclick="generarAnalisis()">📊 Ver Análisis del Día</button>
+        <button onclick="generarAnalisis()" style="width:100%; background:white; border:1px solid #ddd; padding:10px; border-radius:10px; color:#666; font-weight:bold;">📊 Ver Resumen del Día</button>
         <div id="analisis" class="analisis-box">
-            <b id="titulo-analisis">Cargando...</b>
-            <p id="desc-analisis" style="font-size: 0.9rem; margin: 5px 0;"></p>
+            <b id="titulo-analisis"></b>
+            <p id="desc-analisis" style="font-size: 0.9rem; margin-top: 5px;"></p>
         </div>
     </div>
 
     <script>
-        let activo = false;
-        let inicio;
-        let cronometro;
-        let kcalIngeridas = 0;
-        let aguaTotal = 0;
-        let horasAyunoFinal = 0;
+        // --- PEGA TU CLAVE AQUÍ ABAJO ---
+        const MI_LLAVE = "AIzaSyAdHiNhZYEC-XzkMHryYWK9wIxoPOMTpzo"; 
+        
+        let activo = false, inicio, cronometro, kcalTotal = 0, aguaTotal = 0;
 
         function controlarAyuno() {
             activo = !activo;
             const btn = document.getElementById('btnAccion');
             if(activo) {
                 inicio = Date.now();
-                btn.innerText = "Terminar Ayuno";
+                btn.innerText = "Terminar y Comer";
                 btn.style.background = "#ddd"; btn.style.color = "#333";
                 cronometro = setInterval(update, 1000);
             } else {
@@ -105,7 +107,6 @@
                 btn.innerText = "Iniciar Ayuno";
                 btn.style.background = "linear-gradient(to right, #ff7e5f, #feb47b)"; btn.style.color = "white";
                 document.getElementById('aro').style.strokeDashoffset = 754;
-                horasAyunoFinal = Math.floor((Date.now() - inicio) / 3600000);
                 document.getElementById('reloj').innerText = "00:00:00";
             }
         }
@@ -116,19 +117,51 @@
             const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
             const s = (segs % 60).toString().padStart(2, '0');
             document.getElementById('reloj').innerText = `${h}:${m}:${s}`;
-            const progreso = Math.min(segs / 57600, 1);
-            document.getElementById('aro').style.strokeDashoffset = 754 - (754 * progreso);
+            document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segs / 57600, 1));
         }
 
-        function sumarComidaText() {
-            const input = document.getElementById('textComida');
-            if(input.value == "") return;
-            // Simulamos que la IA calcula las kcal según el texto
-            let kcalSimuladas = Math.floor(Math.random() * (600 - 300) + 300); 
-            kcalIngeridas += kcalSimuladas;
-            document.getElementById('cal-total').innerText = kcalIngeridas;
-            alert("Añadido: " + input.value + " (~" + kcalSimuladas + " kcal)");
-            input.value = "";
+        async function llamarIA(prompt, imagenBase64 = null) {
+            document.getElementById('loading').style.display = "block";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
+            
+            const cuerpo = {
+                contents: [{
+                    parts: [
+                        { text: prompt },
+                        ...(imagenBase64 ? [{ inline_data: { mime_type: "image/jpeg", data: imagenBase64 } }] : [])
+                    ]
+                }]
+            };
+
+            try {
+                const response = await fetch(url, { method: 'POST', body: JSON.stringify(cuerpo) });
+                const data = await response.json();
+                const texto = data.candidates[0].content.parts[0].text;
+                const calorias = texto.match(/\d+/)[0]; // Extrae el primer número que encuentre
+                kcalTotal += parseInt(calorias);
+                document.getElementById('cal-total').innerText = kcalTotal;
+                alert("IA detectó: " + calorias + " kcal");
+            } catch (e) {
+                alert("Error con la IA. Revisa tu clave.");
+            }
+            document.getElementById('loading').style.display = "none";
+        }
+
+        function analizarTexto() {
+            const t = document.getElementById('textComida').value;
+            if(!t) return;
+            llamarIA(`Analiza esta comida: "${t}". Dime solo el número aproximado de calorías totales, nada más.`);
+            document.getElementById('textComida').value = "";
+        }
+
+        function analizarFoto(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64 = reader.result.split(',')[1];
+                llamarIA("Analiza esta imagen de comida. Estima las calorías totales y responde solo con el número.", base64);
+            };
+            reader.readAsDataURL(file);
         }
 
         function sumarAgua(ml) {
@@ -139,18 +172,17 @@
         function generarAnalisis() {
             const box = document.getElementById('analisis');
             box.style.display = "block";
+            const quemadas = 1250 + 1600; // Actividad + Basal
+            const balance = kcalTotal - quemadas;
             const titulo = document.getElementById('titulo-analisis');
             const desc = document.getElementById('desc-analisis');
-            
-            const quemadas = 1250 + 1500; // Actividad + Basal aproximado
-            const balance = kcalIngeridas - quemadas;
 
             if(balance < 0) {
-                titulo.innerText = "¡Día de Rendimiento Óptimo! 🔥";
-                desc.innerText = `Has quemado ${Math.abs(balance)} kcal más de las que ingeriste. Con tus horas de ayuno, tu cuerpo está usando grasas eficientemente. ¡Sigue así!`;
+                titulo.innerText = "¡Día Excelente! 🔥";
+                desc.innerText = `Estás en un déficit de ${Math.abs(balance)} kcal. Tu cuerpo está usando reservas de grasa. ¡Buen trabajo!`;
             } else {
-                titulo.innerText = "Día de Recuperación ⚖️";
-                desc.innerText = `Tu ingesta fue mayor a tu gasto por ${balance} kcal. Asegúrate de que el próximo ayuno sea un poco más largo para compensar.`;
+                titulo.innerText = "Balance Positivo ⚖️";
+                desc.innerText = `Hoy consumiste ${balance} kcal más de las que quemaste. Intenta caminar 20 min más para equilibrar.`;
             }
         }
     </script>
