@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno Pro</title>
+    <title>Mi Ayuno Inteligente 2026</title>
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 50px; }
         .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
         button { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .reloj-container { position: relative; width: 240px; height: 240px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
+        .reloj-container { position: relative; width: 260px; height: 260px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
         circle { fill: none; stroke-width: 10; stroke-linecap: round; }
         .fondo-gris { stroke: #f0ede4; }
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
-        .reloj-grande { font-size: 2.5rem; font-weight: bold; position: absolute; }
+        .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; }
         .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 18px; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255, 126, 95, 0.2); }
-        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; border: none; cursor: pointer; }
+        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; border: none; cursor: pointer; opacity: 0.5; }
         #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
         .stat-item { background: #fdfaf3; padding: 12px; border-radius: 15px; text-align: center; flex: 1; }
     </style>
@@ -45,9 +45,9 @@
     </div>
 
     <div class="card">
-        <b>Registrar Comida (IA) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: Café con tostada">
-        <div id="loading">✨ Analizando...</div>
+        <b>Registrar Comida (IA Gemini 3) 🥗</b>
+        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: Ensalada César">
+        <div id="loading">✨ Gemini 3 analizando...</div>
         <div style="display: flex; gap: 10px;">
             <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
             <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
@@ -56,36 +56,41 @@
         <p style="margin-top: 15px; font-weight: bold;">Ingesta: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
     </div>
 
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <b>Agua: <span id="total-agua">0</span> ml</b>
+            <div>
+                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 8px 15px;">-</button>
+                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 8px 15px;">+ 250ml</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
-        let kcalTotal = 0, activo = false, inicio, cronometro;
+        let kcalTotal = 0, aguaTotal = 0, activo = false, inicio, cronometro;
 
         function configurarClave() {
             const key = prompt("Pega aquí tu clave NUEVA (AIza...):", MI_LLAVE);
             if (key) {
                 localStorage.setItem('gemini_key', key.trim());
                 MI_LLAVE = key.trim();
-                alert("✅ Clave guardada.");
+                alert("✅ Clave Gemini 3 guardada.");
             }
         }
 
         async function llamarIA(promptText, img = null) {
-            if(!MI_LLAVE) {
-                alert("⚠️ Toca el ⚙️ y pega tu clave");
-                return;
-            }
-
+            if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
-
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${MI_LLAVE}`;
-
+            
+            // ACTUALIZACIÓN 2026: Usamos gemini-3-flash
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${MI_LLAVE}`;
+            
             const body = {
-                contents: [{
-                    parts: [
-                        { text: promptText },
-                        ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])
-                    ]
-                }]
+                contents: [{ parts: [
+                    { text: promptText },
+                    ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])
+                ]}]
             };
 
             try {
@@ -94,34 +99,20 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
                 });
-
                 const data = await res.json();
-
+                
                 if (data.error) {
-                    alert("Mensaje de Google: " + data.error.message);
-                    return;
-                }
-
-                if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
-                    alert("No se pudo interpretar la respuesta de la IA");
-                    return;
-                }
-
-                const txt = data.candidates[0].content.parts[0].text || "";
-                const num = txt.match(/\d+/);
-
-                if(num) {
-                    kcalTotal += parseInt(num[0]);
-                    document.getElementById('cal-total').innerText = kcalTotal;
-                    alert("¡Sumado! " + num[0] + " kcal");
+                    alert("Google dice: " + data.error.message);
                 } else {
-                    alert("No se detectaron calorías");
+                    const txt = data.candidates[0].content.parts[0].text;
+                    const num = txt.match(/\d+/);
+                    if(num) {
+                        kcalTotal += parseInt(num[0]);
+                        document.getElementById('cal-total').innerText = kcalTotal;
+                        alert("¡IA Gemini 3 detectó " + num[0] + " kcal!");
+                    }
                 }
-
-            } catch (e) {
-                alert("Error de conexión. Prueba otra vez.");
-            }
-
+            } catch (e) { alert("Error de conexión."); }
             document.getElementById('loading').style.display = "none";
         }
 
@@ -133,31 +124,26 @@
 
         function analizarFoto(e) {
             const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Calorías en esta imagen. Solo el número.", reader.result.split(',')[1]);
+            reader.onloadend = () => llamarIA("Dime solo el número de calorías en esta imagen de comida:", reader.result.split(',')[1]);
             reader.readAsDataURL(e.target.files[0]);
+        }
+
+        function sumarAgua(ml) {
+            aguaTotal = Math.max(0, aguaTotal + ml);
+            document.getElementById('total-agua').innerText = aguaTotal;
         }
 
         function controlarAyuno() {
             activo = !activo;
             const btn = document.getElementById('btnAccion');
-
             if(activo) {
-                inicio = Date.now();
-                btn.innerText = "Terminar";
-
+                inicio = Date.now(); btn.innerText = "Terminar";
                 cronometro = setInterval(() => {
                     const s = Math.floor((Date.now() - inicio) / 1000);
-                    document.getElementById('reloj').innerText =
-                        new Date(s * 1000).toISOString().substr(11, 8);
-
-                    document.getElementById('aro').style.strokeDashoffset =
-                        754 - (754 * Math.min(s / 57600, 1));
+                    document.getElementById('reloj').innerText = new Date(s * 1000).toISOString().substr(11, 8);
+                    document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(s / 57600, 1));
                 }, 1000);
-
-            } else {
-                clearInterval(cronometro);
-                btn.innerText = "Iniciar Ayuno";
-            }
+            } else { clearInterval(cronometro); btn.innerText = "Iniciar Ayuno"; }
         }
     </script>
 </body>
