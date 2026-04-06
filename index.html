@@ -3,47 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno</title>
+    <title>Mi Ayuno - Pro</title>
     <style>
-        :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
+        :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 50px; }
         
-        .fase-info { text-align: center; margin-top: 20px; }
-        .fase-titulo { font-weight: bold; color: #d4a373; font-size: 1.2rem; margin-bottom: 5px; }
+        /* TARJETAS */
+        .card { background: white; width: 95%; max-width: 400px; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
+        .card-header { font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* CÍRCULO ESTILO KOMPANION */
-        .reloj-container { position: relative; width: 300px; height: 300px; margin: 20px 0; display: flex; justify-content: center; align-items: center; }
+        /* CÍRCULO */
+        .reloj-container { position: relative; width: 250px; height: 250px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
         circle { fill: none; stroke-width: 10; stroke-linecap: round; }
         .fondo-gris { stroke: #f0ede4; }
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
+        .reloj-grande { font-size: 2.5rem; font-weight: bold; position: absolute; }
 
-        .tiempo-centro { position: absolute; text-align: center; }
-        .reloj-grande { font-size: 3rem; font-weight: bold; margin: 5px 0; }
+        /* BOTONES (Esquinas apenas redondeadas) */
+        button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 15px; width: 100%; font-size: 1.1rem; }
+        .btn-sec { background: #f0f0f0; color: #666; padding: 10px; margin-top: 10px; width: 100%; }
 
-        /* BOTÓN PRINCIPAL */
-        .btn-principal { 
-            background: linear-gradient(to right, #ff7e5f, #feb47b); 
-            color: white; border: none; padding: 18px 60px; 
-            border-radius: 15px; font-size: 1.2rem; font-weight: bold; 
-            box-shadow: 0 10px 20px rgba(255, 126, 95, 0.2); cursor: pointer;
-            width: 80%; max-width: 300px;
-        }
-
-        /* REGISTRO DE AGUA (250ml) */
-        .agua-card { background: white; width: 90%; max-width: 380px; padding: 25px; border-radius: 25px; margin-top: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: center; }
-        .agua-controles { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 15px; }
-        .btn-agua { background: #f0f7ff; color: #3b82f6; border: none; width: 55px; height: 55px; border-radius: 15px; font-size: 1.8rem; cursor: pointer; font-weight: bold; }
+        /* REGISTRO COMIDA */
+        .input-comida { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 8px; box-sizing: border-box; }
         
-        /* BOTÓN CÁMARA CALORÍAS */
-        .btn-camara { background: white; border: 2px solid #eee; padding: 10px 20px; border-radius: 12px; margin-top: 20px; font-weight: bold; cursor: pointer; color: #666; }
+        /* ANÁLISIS FINAL */
+        .analisis-box { background: #eef2ff; border-left: 4px solid var(--azul); padding: 15px; border-radius: 10px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="fase-info">
-        <div class="fase-titulo" id="fase-nombre">Fase anabólica</div>
-        <div style="font-size: 0.9rem; opacity: 0.6;">Comenzó la digestión</div>
+    <div style="text-align: center; margin-bottom: 10px;">
+        <div id="fase-nombre" style="font-weight: bold; color: var(--naranja);">Estado: Alimentado</div>
     </div>
 
     <div class="reloj-container">
@@ -51,26 +43,44 @@
             <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
             <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
         </svg>
-        <div class="tiempo-centro">
-            <div style="font-size: 0.8rem; opacity: 0.5;">TIEMPO TRANSCURRIDO</div>
-            <div class="reloj-grande" id="reloj">00:00:00</div>
-            <div style="font-size: 0.8rem; color: var(--naranja); font-weight: bold;">OBJETIVO: 16h</div>
+        <div class="reloj-grande" id="reloj">00:00:00</div>
+    </div>
+
+    <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
+
+    <div class="card">
+        <div class="card-header">Actividad 🔥</div>
+        <div style="display: flex; justify-content: space-around; text-align: center;">
+            <div><span style="font-size: 1.2rem; font-weight: bold;">8,420</span><br><small>PASOS</small></div>
+            <div><span style="font-size: 1.2rem; font-weight: bold; color: #ef4444;">1,250</span><br><small>QUEMADAS</small></div>
         </div>
     </div>
 
-    <button class="btn-principal" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
-    <button class="btn-camara" onclick="alert('📸 Aquí abriremos la cámara para las calorías')">📷 Registrar Comida</button>
+    <div class="card">
+        <div class="card-header">Comidas y Calorías 🥗</div>
+        <input type="text" id="textComida" class="input-comida" placeholder="Ej: Pollo con arroz o subir foto...">
+        <div style="display: flex; gap: 10px;">
+            <button onclick="sumarComidaText()" style="flex:1; background: var(--verde); color: white; padding: 10px;">+ Añadir</button>
+            <button onclick="alert('📸 Cámara')" style="flex:1; background: var(--azul); color: white; padding: 10px;">📸 Foto</button>
+        </div>
+        <div style="margin-top: 10px; font-weight: bold;">Total hoy: <span id="cal-total">0</span> kcal</div>
+    </div>
 
-    <div class="agua-card">
-        <div style="font-weight: bold; font-size: 1.1rem;">Registro de agua</div>
-        <div style="font-size: 2rem; margin: 10px 0; color: #3b82f6; font-weight: bold;"><span id="total-agua">0</span> <small style="font-size: 1rem;">ml</small></div>
-        <div class="agua-controles">
-            <button class="btn-agua" onclick="sumarAgua(-250)">−</button>
-            <div style="text-align: center;">
-                <div style="font-size: 0.8rem; opacity: 0.6;">VASO DE</div>
-                <div style="font-weight: bold;">250 ml</div>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <b>Agua: <span id="total-agua">0</span> ml</b>
+            <div>
+                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 5px 15px; border-radius: 5px;">-</button>
+                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 5px 15px; border-radius: 5px;">+</button>
             </div>
-            <button class="btn-agua" onclick="sumarAgua(250)">+</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <button class="btn-sec" onclick="generarAnalisis()">📊 Ver Análisis del Día</button>
+        <div id="analisis" class="analisis-box">
+            <b id="titulo-analisis">Cargando...</b>
+            <p id="desc-analisis" style="font-size: 0.9rem; margin: 5px 0;"></p>
         </div>
     </div>
 
@@ -78,21 +88,24 @@
         let activo = false;
         let inicio;
         let cronometro;
+        let kcalIngeridas = 0;
         let aguaTotal = 0;
+        let horasAyunoFinal = 0;
 
         function controlarAyuno() {
             activo = !activo;
             const btn = document.getElementById('btnAccion');
             if(activo) {
                 inicio = Date.now();
-                btn.innerText = "Terminar";
-                btn.style.background = "#e5e7eb"; btn.style.color = "#4b5563";
+                btn.innerText = "Terminar Ayuno";
+                btn.style.background = "#ddd"; btn.style.color = "#333";
                 cronometro = setInterval(update, 1000);
             } else {
                 clearInterval(cronometro);
                 btn.innerText = "Iniciar Ayuno";
                 btn.style.background = "linear-gradient(to right, #ff7e5f, #feb47b)"; btn.style.color = "white";
                 document.getElementById('aro').style.strokeDashoffset = 754;
+                horasAyunoFinal = Math.floor((Date.now() - inicio) / 3600000);
                 document.getElementById('reloj').innerText = "00:00:00";
             }
         }
@@ -103,20 +116,42 @@
             const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
             const s = (segs % 60).toString().padStart(2, '0');
             document.getElementById('reloj').innerText = `${h}:${m}:${s}`;
-
-            // Mueve el aro (meta 16h = 57600 seg)
             const progreso = Math.min(segs / 57600, 1);
             document.getElementById('aro').style.strokeDashoffset = 754 - (754 * progreso);
+        }
 
-            // Cambiar Fases
-            const fase = document.getElementById('fase-nombre');
-            if(segs > 43200) fase.innerText = "Quema de grasa 🔥";
-            else if(segs > 14400) fase.innerText = "Fase catabólica ⚙️";
+        function sumarComidaText() {
+            const input = document.getElementById('textComida');
+            if(input.value == "") return;
+            // Simulamos que la IA calcula las kcal según el texto
+            let kcalSimuladas = Math.floor(Math.random() * (600 - 300) + 300); 
+            kcalIngeridas += kcalSimuladas;
+            document.getElementById('cal-total').innerText = kcalIngeridas;
+            alert("Añadido: " + input.value + " (~" + kcalSimuladas + " kcal)");
+            input.value = "";
         }
 
         function sumarAgua(ml) {
             aguaTotal = Math.max(0, aguaTotal + ml);
             document.getElementById('total-agua').innerText = aguaTotal;
+        }
+
+        function generarAnalisis() {
+            const box = document.getElementById('analisis');
+            box.style.display = "block";
+            const titulo = document.getElementById('titulo-analisis');
+            const desc = document.getElementById('desc-analisis');
+            
+            const quemadas = 1250 + 1500; // Actividad + Basal aproximado
+            const balance = kcalIngeridas - quemadas;
+
+            if(balance < 0) {
+                titulo.innerText = "¡Día de Rendimiento Óptimo! 🔥";
+                desc.innerText = `Has quemado ${Math.abs(balance)} kcal más de las que ingeriste. Con tus horas de ayuno, tu cuerpo está usando grasas eficientemente. ¡Sigue así!`;
+            } else {
+                titulo.innerText = "Día de Recuperación ⚖️";
+                desc.innerText = `Tu ingesta fue mayor a tu gasto por ${balance} kcal. Asegúrate de que el próximo ayuno sea un poco más largo para compensar.`;
+            }
         }
     </script>
 </body>
