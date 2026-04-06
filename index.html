@@ -142,7 +142,7 @@
                 document.getElementById('cal-total').innerText = kcalTotal;
                 alert("IA detectó: " + calorias + " kcal");
             } catch (e) {
-                alert("Error con la IA. Revisa tu clave.");
+                alert("Error: " + JSON.stringify(data));
             }
             document.getElementById('loading').style.display = "none";
         }
