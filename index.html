@@ -45,9 +45,9 @@
     </div>
 
     <div class="card">
-        <b>Registrar Comida (IA Gemini 3) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: Ensalada César">
-        <div id="loading">✨ Gemini 3 analizando...</div>
+        <b>Registrar Comida (Gemini 3 Flash) 🥗</b>
+        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: Tortilla de patatas">
+        <div id="loading">✨ Analizando...</div>
         <div style="display: flex; gap: 10px;">
             <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
             <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
@@ -71,11 +71,11 @@
         let kcalTotal = 0, aguaTotal = 0, activo = false, inicio, cronometro;
 
         function configurarClave() {
-            const key = prompt("Pega aquí tu clave NUEVA (AIza...):", MI_LLAVE);
+            const key = prompt("Pega aquí tu clave NUEVA:", MI_LLAVE);
             if (key) {
                 localStorage.setItem('gemini_key', key.trim());
                 MI_LLAVE = key.trim();
-                alert("✅ Clave Gemini 3 guardada.");
+                alert("✅ Clave actualizada.");
             }
         }
 
@@ -83,8 +83,8 @@
             if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
             
-            // ACTUALIZACIÓN 2026: Usamos gemini-3-flash
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${MI_LLAVE}`;
+            // CAMBIO CRUCIAL: v1beta -> v1 (Versión estable de 2026)
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3-flash:generateContent?key=${MI_LLAVE}`;
             
             const body = {
                 contents: [{ parts: [
@@ -109,10 +109,10 @@
                     if(num) {
                         kcalTotal += parseInt(num[0]);
                         document.getElementById('cal-total').innerText = kcalTotal;
-                        alert("¡IA Gemini 3 detectó " + num[0] + " kcal!");
+                        alert("¡Sumado! " + num[0] + " kcal");
                     }
                 }
-            } catch (e) { alert("Error de conexión."); }
+            } catch (e) { alert("Error de red."); }
             document.getElementById('loading').style.display = "none";
         }
 
@@ -124,7 +124,7 @@
 
         function analizarFoto(e) {
             const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Dime solo el número de calorías en esta imagen de comida:", reader.result.split(',')[1]);
+            reader.onloadend = () => llamarIA("Dime solo el número de calorías en esta imagen:", reader.result.split(',')[1]);
             reader.readAsDataURL(e.target.files[0]);
         }
 
