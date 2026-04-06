@@ -3,115 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno IA</title>
+    <title>Mi Ayuno Inteligente</title>
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
-        body { font-family: sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
-        button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; padding: 12px; }
-        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; width: 100%; font-size: 1.1rem; }
-        .reloj { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--naranja); }
-        #loading { display: none; color: var(--azul); margin: 10px 0; font-weight: bold; }
-        .config { position: absolute; top: 10px; right: 10px; font-size: 1.2rem; background: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 40px; }
+        
+        /* TARJETAS */
+        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
+        button { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        
+        /* EL CÍRCULO */
+        .reloj-container { position: relative; width: 260px; height: 260px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
+        svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+        .fondo-gris { stroke: #f0ede4; }
+        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
+        .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; }
+
+        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 18px; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255, 126, 95, 0.2); }
+        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; }
+        #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
+        
+        /* ACTIVIDAD */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .stat-item { background: #fdfaf3; padding: 12px; border-radius: 15px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <button class="config" onclick="setKey()">⚙️</button>
+    <button class="config-btn" onclick="configurarClave()">⚙️</button>
 
-    <div class="reloj" id="reloj">00:00:00</div>
-    <button class="btn-main" id="btnAccion" onclick="toggleAyuno()">Iniciar Ayuno</button>
+    <div id="fase-nombre" style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Fase anabólica</div>
+
+    <div class="reloj-container">
+        <svg viewBox="0 0 280 280">
+            <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
+            <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
+        </svg>
+        <div class="reloj-grande" id="reloj">00:00:00</div>
+    </div>
+
+    <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
 
     <div class="card">
-        <b>Registrar Comida (IA)</b>
-        <input type="text" id="comidaInput" style="width:100%; padding:10px; margin:10px 0; border:1px solid #ddd; border-radius:8px;" placeholder="Ej: Paella mixta">
-        <div id="loading">✨ Analizando...</div>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="enviarTexto()" style="flex:1; background: var(--verde); color: white;">+ Texto</button>
-            <button onclick="document.getElementById('fotoInput').click()" style="flex:1; background: var(--azul); color: white;">📷 Foto</button>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem;">
+            <span>Actividad Diaria</span>
+            <span style="color: var(--azul);">Samsung Health ⌚</span>
         </div>
-        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="enviarFoto(event)">
-        <p style="font-weight: bold; margin-top:15px;">Hoy: <span id="calTotal">0</span> kcal</p>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span style="font-size: 1.3rem; font-weight: bold;">8,420</span><br>
+                <small style="opacity: 0.6;">PASOS hoy</small>
+            </div>
+            <div class="stat-item">
+                <span style="font-size: 1.3rem; font-weight: bold; color: #ef4444;">1,250</span><br>
+                <small style="opacity: 0.6;">KCAL quemadas</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <b>Registrar Comida (IA) 🥗</b>
+        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: Pollo con ensalada">
+        <div id="loading">✨ Analizando con IA...</div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
+            <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
+        </div>
+        <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
+        <p style="margin-top: 15px; font-weight: bold;">Ingesta: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <b>Agua: <span id="total-agua">0</span> ml</b>
+            <div>
+                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 8px 15px;">-</button>
+                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 8px 15px;">+ 250ml</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <button onclick="generarAnalisis()" style="width:100%; background:white; border:1px solid #ddd; padding:12px; border-radius:12px; color:#666; font-weight:bold;">📊 Ver Análisis del Día</button>
+        <div id="analisis" style="display:none; margin-top:10px; background:#f0f7ff; padding:15px; border-radius:12px; font-size:0.9rem;"></div>
     </div>
 
     <script>
-        let llave = localStorage.getItem('g_key') || "";
-        let kcal = 0;
-        let activo = false, inicio, timer;
+        let MI_LLAVE = localStorage.getItem('gemini_key') || "";
+        let activo = false, inicio, cronometro, kcalTotal = 0, aguaTotal = 0;
 
-        function setKey() {
-            const k = prompt("Pega tu clave de Google (AIza...):", llave);
-            if(k) { localStorage.setItem('g_key', k.trim()); llave = k.trim(); alert("Clave guardada"); }
+        function configurarClave() {
+            const key = prompt("Pega aquí tu clave (AIza...):", MI_LLAVE);
+            if (key) {
+                localStorage.setItem('gemini_key', key.trim());
+                MI_LLAVE = key.trim();
+                alert("✅ Clave guardada.");
+            }
         }
 
-        async function preguntarIA(promptTxt, imgB64 = null) {
-            if(!llave) return alert("Toca el ⚙️ y pega tu clave");
+        async function llamarIA(promptText, img = null) {
+            if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
-
-            // URL Simplificada v1beta
-            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + llave;
-
-            const payload = {
-                contents: [{
-                    parts: [
-                        { text: promptTxt },
-                        ...(imgB64 ? [{ inline_data: { mime_type: "image/jpeg", data: imgB64 } }] : [])
-                    ]
-                }]
+            
+            // CAMBIO CLAVE: Usamos la URL v1 que es más estable
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
+            
+            const body = {
+                contents: [{ parts: [
+                    { text: promptText },
+                    ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])
+                ]}]
             };
 
             try {
-                const response = await fetch(url, {
+                const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(body)
                 });
-
-                const data = await response.json();
-
-                if(data.error) {
-                    alert("Error Google: " + data.error.message);
+                const data = await res.json();
+                
+                if (data.error) {
+                    alert("Error: " + data.error.message);
                 } else {
-                    const respuesta = data.candidates[0].content.parts[0].text;
-                    const num = respuesta.match(/\d+/);
-                    if(num) {
-                        kcal += parseInt(num[0]);
-                        document.getElementById('calTotal').innerText = kcal;
-                        alert("Sumadas: " + num[0] + " kcal");
-                    }
+                    const txt = data.candidates[0].content.parts[0].text;
+                    const num = txt.match(/\d+/)[0];
+                    kcalTotal += parseInt(num);
+                    document.getElementById('cal-total').innerText = kcalTotal;
+                    alert("¡Añadidas " + num + " kcal!");
                 }
-            } catch (e) {
-                alert("Error de red: " + e.message);
-            }
+            } catch (e) { alert("Error de conexión. Revisa tu clave."); }
             document.getElementById('loading').style.display = "none";
         }
 
-        function enviarTexto() {
-            const val = document.getElementById('comidaInput').value;
-            if(val) preguntarIA("¿Cuántas calorías tiene: " + val + "? Responde solo el número.");
-            document.getElementById('comidaInput').value = "";
+        function analizarTexto() {
+            const val = document.getElementById('textComida').value;
+            if(val) llamarIA("Solo dime el número de calorías para: " + val);
+            document.getElementById('textComida').value = "";
         }
 
-        function enviarFoto(e) {
+        function analizarFoto(e) {
             const reader = new FileReader();
-            reader.onloadend = () => preguntarIA("¿Cuántas calorías ves? Responde solo el número.", reader.result.split(',')[1]);
+            reader.onloadend = () => llamarIA("¿Cuántas calorías tiene este plato? Responde solo el número.", reader.result.split(',')[1]);
             reader.readAsDataURL(e.target.files[0]);
         }
 
-        function toggleAyuno() {
+        function sumarAgua(ml) {
+            aguaTotal = Math.max(0, aguaTotal + ml);
+            document.getElementById('total-agua').innerText = aguaTotal;
+        }
+
+        function controlarAyuno() {
             activo = !activo;
             const btn = document.getElementById('btnAccion');
             if(activo) {
-                inicio = Date.now();
-                btn.innerText = "Terminar";
-                timer = setInterval(() => {
-                    const s = Math.floor((Date.now() - inicio) / 1000);
-                    document.getElementById('reloj').innerText = new Date(s * 1000).toISOString().substr(11, 8);
+                inicio = Date.now(); btn.innerText = "Terminar";
+                cronometro = setInterval(() => {
+                    const segs = Math.floor((Date.now() - inicio) / 1000);
+                    document.getElementById('reloj').innerText = new Date(segs * 1000).toISOString().substr(11, 8);
+                    document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segs / 57600, 1));
                 }, 1000);
             } else {
-                clearInterval(timer);
-                btn.innerText = "Iniciar Ayuno";
+                clearInterval(cronometro); btn.innerText = "Iniciar Ayuno";
+                document.getElementById('aro').style.strokeDashoffset = 754;
             }
+        }
+
+        function generarAnalisis() {
+            const a = document.getElementById('analisis');
+            a.style.display = "block";
+            const balance = kcalTotal - (1250 + 1600);
+            a.innerText = balance < 0 ? "¡Día fantástico! Estás en déficit calórico y quemando grasa." : "Hoy has cubierto tus necesidades calóricas. ¡Mañana más ayuno!";
         }
     </script>
 </body>
