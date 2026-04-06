@@ -3,165 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno Inteligente v3</title>
+    <title>Ayuno Pro: Control Total</title>
     <style>
-        :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 50px; }
+        :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; --rojo: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 60px; }
         .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
         button { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        
+        /* CÍRCULO */
         .reloj-container { position: relative; width: 260px; height: 260px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
         circle { fill: none; stroke-width: 10; stroke-linecap: round; }
         .fondo-gris { stroke: #f0ede4; }
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
-        .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; }
+        .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; text-align: center; }
+        .reloj-grande small { font-size: 0.8rem; display: block; color: var(--verde); margin-top: -5px; }
+
         .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 18px; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255, 126, 95, 0.2); }
-        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; border: none; cursor: pointer; opacity: 0.5; }
+        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; opacity: 0.3; }
         #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
+        
         .stat-item { background: #fdfaf3; padding: 12px; border-radius: 15px; text-align: center; flex: 1; }
+        .boost-tag { background: var(--verde); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; position: absolute; top: 40px; z-index: 10; }
+        
+        /* INPUTS TIEMPO */
+        .input-time { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.9rem; margin-top: 5px; color: var(--texto); }
+        label { font-size: 0.75rem; font-weight: bold; opacity: 0.6; display: block; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <button class="config-btn" onclick="configurarClave()">⚙️</button>
 
-    <div style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Fase anabólica</div>
+    <div style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Cronómetro Real: <span id="tiempo-real">00:00:00</span></div>
 
     <div class="reloj-container">
+        <div class="boost-tag" id="boost-display" style="display:none">🔥 Acelerado</div>
         <svg viewBox="0 0 280 280">
             <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
             <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
         </svg>
-        <div class="reloj-grande" id="reloj">00:00:00</div>
+        <div class="reloj-grande">
+            <span id="reloj-metabolico">00:00</span>
+            <small>AYUNO EFECTIVO</small>
+        </div>
     </div>
 
     <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
 
     <div class="card">
+        <b>⚙️ Ajuste Manual (Si olvidaste marcar)</b>
         <div style="display: flex; gap: 10px;">
-            <div class="stat-item"><b>8,420</b><br><small>PASOS</small></div>
-            <div class="stat-item"><b style="color: #ef4444;">1,250</b><br><small>KCAL 🔥</small></div>
+            <div style="flex: 1;">
+                <label>HORA DE INICIO</label>
+                <input type="datetime-local" id="manual-inicio" class="input-time" onchange="ajustarManual()">
+            </div>
+            <div style="flex: 1;">
+                <label>HORA DE FIN</label>
+                <input type="datetime-local" id="manual-fin" class="input-time" onchange="ajustarManual()">
+            </div>
         </div>
+        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 10px;">* Al cambiar estas fechas, el reloj se ajustará automáticamente.</p>
     </div>
 
     <div class="card">
-        <b>Registrar Comida (IA Universal) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="Ej: 2 tostadas con aguacate">
-        <div id="loading">✨ La IA está pensando...</div>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.8rem; margin-bottom: 10px;">
+            <span>METABOLISMO</span>
+            <span style="color: var(--azul);">SAMSUNG HEALTH</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <div class="stat-item"><b id="pasos-val">0</b><br><small>PASOS</small></div>
+            <div class="stat-item"><b id="burn-val" style="color: var(--rojo);">0</b><br><small>KCAL 🔥</small></div>
+        </div>
+        <button onclick="document.getElementById('inputSync').click()" style="background: var(--azul); color: white; padding: 12px; margin-top:10px; width:100%; font-size: 0.8rem;">
+            🔄 Sincronizar Samsung Health (Captura)
+        </button>
+        <input type="file" id="inputSync" accept="image/*" style="display:none" onchange="sincronizarActividad(event)">
+    </div>
+
+    <div class="card">
+        <b>Registrar Comida (IA) 🥗</b>
+        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="¿Qué vas a comer?">
+        <div id="loading">✨ IA analizando...</div>
         <div style="display: flex; gap: 10px;">
             <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
             <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
         </div>
         <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
-        <p style="margin-top: 15px; font-weight: bold;">Ingesta: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
-    </div>
-
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <b>Agua: <span id="total-agua">0</span> ml</b>
-            <div>
-                <button onclick="sumarAgua(-250)" style="background:#eee; padding: 8px 15px; border-radius: 10px;">-</button>
-                <button onclick="sumarAgua(250)" style="background:#e0f2fe; color:var(--azul); padding: 8px 15px; border-radius: 10px;">+ 250ml</button>
-            </div>
-        </div>
     </div>
 
     <script>
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
-        let kcalTotal = 0, aguaTotal = 0, activo = false, inicio, cronometro;
-        let MODELO_ACTIVO = "gemini-1.5-flash"; // Por defecto, pero el buscador lo actualizará
+        let kcalEntreno = 0, activo = false, inicio, fin, cronometro;
+        let MODELO_URL = "";
 
-        function configurarClave() {
-            const key = prompt("Pega tu clave (asegúrate de que sea una nueva):", MI_LLAVE);
-            if (key) {
-                localStorage.setItem('gemini_key', key.trim());
-                MI_LLAVE = key.trim();
-                alert("✅ Clave guardada. Intentando conectar...");
-                buscarModelo();
-            }
-        }
-
-        // FUNCIÓN DETECTIVE: Busca qué modelo tienes disponible
         async function buscarModelo() {
             if(!MI_LLAVE) return;
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${MI_LLAVE}`);
                 const data = await res.json();
-                // Buscamos el modelo más nuevo (3 o 2) que sea 'flash'
-                const encontrado = data.models.find(m => m.name.includes('flash') && (m.name.includes('3') || m.name.includes('2')));
-                if(encontrado) {
-                    MODELO_ACTIVO = encontrado.name;
-                    console.log("Usando modelo detectado:", MODELO_ACTIVO);
-                }
-            } catch(e) { console.error("Error buscando modelo"); }
+                const mod = data.models.find(m => m.name.includes('flash'));
+                if(mod) MODELO_URL = `https://generativelanguage.googleapis.com/v1beta/${mod.name}:generateContent?key=${MI_LLAVE}`;
+            } catch(e) {}
         }
         buscarModelo();
 
-        async function llamarIA(promptText, img = null) {
-            if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
-            document.getElementById('loading').style.display = "block";
-            
-            // Usamos la URL del modelo detectado dinámicamente
-            const url = `https://generativelanguage.googleapis.com/v1beta/${MODELO_ACTIVO}:generateContent?key=${MI_LLAVE}`;
-            
-            const body = {
-                contents: [{ parts: [
-                    { text: promptText },
-                    ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])
-                ]}]
-            };
-
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const data = await res.json();
-                
-                if (data.error) {
-                    alert("Google dice: " + data.error.message + "\n\nIntenta generar una clave nueva en AI Studio.");
-                } else {
-                    const txt = data.candidates[0].content.parts[0].text;
-                    const num = txt.match(/\d+/);
-                    if(num) {
-                        kcalTotal += parseInt(num[0]);
-                        document.getElementById('cal-total').innerText = kcalTotal;
-                        alert("¡Detectado! +" + num[0] + " kcal");
-                    }
-                }
-            } catch (e) { alert("Error de red."); }
-            document.getElementById('loading').style.display = "none";
-        }
-
-        function analizarTexto() {
-            const val = document.getElementById('textComida').value;
-            if(val) llamarIA("Solo el número de calorías para: " + val);
-            document.getElementById('textComida').value = "";
-        }
-
-        function analizarFoto(e) {
-            const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Dime solo el número de calorías en esta imagen:", reader.result.split(',')[1]);
-            reader.readAsDataURL(e.target.files[0]);
-        }
-
-        function sumarAgua(ml) {
-            aguaTotal = Math.max(0, aguaTotal + ml);
-            document.getElementById('total-agua').innerText = aguaTotal;
+        function configurarClave() {
+            const key = prompt("Pega tu clave:", MI_LLAVE);
+            if (key) {
+                localStorage.setItem('gemini_key', key.trim());
+                MI_LLAVE = key.trim();
+                buscarModelo();
+                alert("✅ Configurado.");
+            }
         }
 
         function controlarAyuno() {
             activo = !activo;
             const btn = document.getElementById('btnAccion');
             if(activo) {
-                inicio = Date.now(); btn.innerText = "Terminar";
-                cronometro = setInterval(() => {
-                    const s = Math.floor((Date.now() - inicio) / 1000);
-                    document.getElementById('reloj').innerText = new Date(s * 1000).toISOString().substr(11, 8);
-                    document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(s / 57600, 1));
-                }, 1000);
-            } else { clearInterval(cronometro); btn.innerText = "Iniciar Ayuno"; }
+                inicio = Date.now();
+                fin = null;
+                btn.innerText = "Terminar Ayuno";
+                document.getElementById('manual-inicio').value = new Date(inicio - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
+                cronometro = setInterval(updateReloj, 1000);
+            } else {
+                fin = Date.now();
+                document.getElementById('manual-fin').value = new Date(fin - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
+                clearInterval(cronometro);
+                btn.innerText = "Iniciar Ayuno";
+            }
+        }
+
+        function ajustarManual() {
+            const valInicio = document.getElementById('manual-inicio').value;
+            const valFin = document.getElementById('manual-fin').value;
+            
+            if(valInicio) {
+                inicio = new Date(valInicio).getTime();
+                if(!activo) {
+                    activo = true;
+                    document.getElementById('btnAccion').innerText = "Terminar Ayuno";
+                    cronometro = setInterval(updateReloj, 1000);
+                }
+            }
+            if(valFin) {
+                fin = new Date(valFin).getTime();
+                activo = false;
+                clearInterval(cronometro);
+                document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
+                updateReloj(); // Actualización final
+            }
+        }
+
+        function updateReloj() {
+            let ahora = fin || Date.now();
+            if(!inicio) return;
+
+            const segsReales = Math.floor((ahora - inicio) / 1000);
+            const boostSegundos = Math.floor((kcalEntreno / 200) * 1800); // 200kcal = 30min
+            const segsEfectivos = Math.max(0, segsReales + boostSegundos);
+
+            // Reloj Real
+            document.getElementById('tiempo-real').innerText = new Date(segsReales * 1000).toISOString().substr(11, 8);
+            
+            // Reloj Efectivo
+            const h = Math.floor(segsEfectivos / 3600).toString().padStart(2, '0');
+            const m = Math.floor((segsEfectivos % 3600) / 60).toString().padStart(2, '0');
+            document.getElementById('reloj-metabolico').innerText = `${h}:${m}`;
+
+            // Boost
+            const bDisplay = document.getElementById('boost-display');
+            if(boostSegundos > 0) {
+                bDisplay.style.display = "block";
+                bDisplay.innerText = `🔥 +${Math.floor(boostSegundos/3600)}h ${Math.floor((boostSegundos%3600)/60)}m Extra`;
+            } else { bDisplay.style.display = "none"; }
+
+            document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segsEfectivos / 57600, 1));
+        }
+
+        async function llamarIA(promptText, img = null, esSync = false) {
+            if(!MODELO_URL) return alert("⚙️ Configura tu clave primero");
+            document.getElementById('loading').style.display = "block";
+            const body = { contents: [{ parts: [{ text: promptText }, ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])] }] };
+            try {
+                const res = await fetch(MODELO_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const data = await res.json();
+                const resp = data.candidates[0].content.parts[0].text;
+                if(esSync) {
+                    const valores = resp.match(/\d+/g);
+                    if(valores && valores.length >= 2) {
+                        document.getElementById('pasos-val').innerText = valores[0];
+                        kcalEntreno = parseInt(valores[1]);
+                        document.getElementById('burn-val').innerText = kcalEntreno;
+                        updateReloj();
+                    }
+                } else { alert("Registrado: " + resp); }
+            } catch (e) { alert("Error IA"); }
+            document.getElementById('loading').style.display = "none";
+        }
+
+        function sincronizarActividad(e) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const b64 = reader.result.split(',')[1];
+                llamarIA("Lee esta captura de Samsung Health. Dime solo: pasos totales y calorías quemadas activas (entrenamiento). Formato: pasos,calorías. Nada más.", b64, true);
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+
+        function analizarTexto() {
+            const val = document.getElementById('textComida').value;
+            if(val) llamarIA("Calorías de: " + val + ". Solo número.");
+            document.getElementById('textComida').value = "";
+        }
+        
+        function analizarFoto(e) {
+            const reader = new FileReader();
+            reader.onloadend = () => llamarIA("Calorías en imagen. Solo número.", reader.result.split(',')[1]);
+            reader.readAsDataURL(e.target.files[0]);
         }
     </script>
 </body>
