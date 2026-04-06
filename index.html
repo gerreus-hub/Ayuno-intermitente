@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Ayuno IA</title>
+    <style>
+        /* Estilos sencillos y elegantes */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            /* TUS BOTONES Y CAJAS CON ESQUINAS APENAS REDONDEADAS */
+            border-radius: 8px; 
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .timer {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #4ade80;
+        }
+
+        /* EL BOTÓN QUE PEDISTE */
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            /* ESQUINAS APENAS REDONDEADAS (4px a 8px es lo ideal) */
+            border-radius: 8px;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        button:active {
+            background-color: #2563eb;
+        }
+
+        .status-tag {
+            background: #333;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .health-info {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Mi Ayuno</h2>
+        <div class="status-tag" id="fase">Estado: Alimentado</div>
+        <div class="timer" id="reloj">00:00:00</div>
+        <button id="btnAccion" onclick="toggleAyuno()">Iniciar Ayuno</button>
+    </div>
+
+    <div class="card">
+        <h3>Salud y Calorías</h3>
+        <div class="health-info">
+            <div>👣 <span id="pasos">8420</span></div>
+            <div>🔥 <span id="kcal">0</span> kcal</div>
+        </div>
+        <button style="margin-top: 15px; background-color: #ec4899;" onclick="alert('Cámara se abrirá aquí')">📷 Subir Comida</button>
+    </div>
+
+    <script>
+        let ayunando = false;
+        let tiempoInicio;
+        let intervalo;
+
+        function toggleAyuno() {
+            ayunando = !ayunando;
+            const btn = document.getElementById('btnAccion');
+            const fase = document.getElementById('fase');
+
+            if (ayunando) {
+                tiempoInicio = Date.now();
+                btn.innerText = "Detener y Comer";
+                btn.style.backgroundColor = "#ef4444";
+                fase.innerText = "Estado: Ayunando (Fase Anabólica)";
+                
+                intervalo = setInterval(actualizarReloj, 1000);
+            } else {
+                clearInterval(intervalo);
+                btn.innerText = "Iniciar Ayuno";
+                btn.style.backgroundColor = "#3b82f6";
+                fase.innerText = "Estado: Alimentado";
+                document.getElementById('reloj').innerText = "00:00:00";
+                alert("¡Ayuno terminado! No olvides subir la foto de tu comida.");
+            }
+        }
+
+        function actualizarReloj() {
+            const ahora = Date.now();
+            const diferencia = ahora - tiempoInicio;
+
+            const horas = Math.floor(diferencia / 3600000);
+            const minutos = Math.floor((diferencia % 3600000) / 60000);
+            const segundos = Math.floor((diferencia % 60000) / 1000);
+
+            document.getElementById('reloj').innerText = 
+                `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+            
+            // Lógica simple de fases
+            if (horas >= 12) fase.innerText = "Estado: Quema de Grasa 🔥";
+            if (horas >= 16) fase.innerText = "Estado: Autofagia ♻️";
+        }
+    </script>
+</body>
+</html>
