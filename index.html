@@ -2,92 +2,98 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayuno Pro: Control Total</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ayuno Pro</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ayuno Pro">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#fdfaf3">
+
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; --rojo: #ef4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 60px; }
-        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
-        button { border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 60px; -webkit-tap-highlight-color: transparent; }
         
-        /* CÍRCULO */
-        .reloj-container { position: relative; width: 260px; height: 260px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
+        button { border: none; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; active { transform: scale(0.98); } }
+        
+        .reloj-container { position: relative; width: 270px; height: 270px; margin: 20px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-        circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+        circle { fill: none; stroke-width: 12; stroke-linecap: round; }
         .fondo-gris { stroke: #f0ede4; }
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
-        .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; text-align: center; }
-        .reloj-grande small { font-size: 0.8rem; display: block; color: var(--verde); margin-top: -5px; }
+        
+        .reloj-grande { font-size: 3rem; font-weight: bold; position: absolute; text-align: center; line-height: 1; }
+        .reloj-grande small { font-size: 0.85rem; display: block; color: var(--verde); margin-top: 5px; letter-spacing: 1px; }
 
-        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 18px; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255, 126, 95, 0.2); }
-        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; opacity: 0.3; }
+        .btn-main { background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white; padding: 20px; width: 100%; font-size: 1.2rem; box-shadow: 0 8px 20px rgba(255, 126, 95, 0.25); margin-top: 10px; }
+        .config-btn { position: absolute; top: 25px; right: 25px; background: none; font-size: 1.6rem; opacity: 0.3; z-index: 100; }
+        
+        .stat-item { background: #fdfaf3; padding: 15px; border-radius: 18px; text-align: center; flex: 1; }
+        .boost-tag { background: var(--verde); color: white; padding: 6px 14px; border-radius: 25px; font-size: 0.75rem; position: absolute; top: 35px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        
+        .input-time { width: 100%; padding: 12px; border: 1px solid #f0f0f0; border-radius: 12px; font-size: 0.9rem; margin-top: 5px; background: #fafafa; }
+        label { font-size: 0.75rem; font-weight: bold; opacity: 0.5; display: block; margin-top: 12px; text-transform: uppercase; }
         #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
-        
-        .stat-item { background: #fdfaf3; padding: 12px; border-radius: 15px; text-align: center; flex: 1; }
-        .boost-tag { background: var(--verde); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; position: absolute; top: 40px; z-index: 10; }
-        
-        /* INPUTS TIEMPO */
-        .input-time { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.9rem; margin-top: 5px; color: var(--texto); }
-        label { font-size: 0.75rem; font-weight: bold; opacity: 0.6; display: block; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <button class="config-btn" onclick="configurarClave()">⚙️</button>
 
-    <div style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Cronómetro Real: <span id="tiempo-real">00:00:00</span></div>
+    <div style="font-weight: bold; color: var(--naranja); margin-top: 30px; letter-spacing: 1px;">CRONÓMETRO: <span id="tiempo-real">00:00:00</span></div>
 
     <div class="reloj-container">
-        <div class="boost-tag" id="boost-display" style="display:none">🔥 Acelerado</div>
+        <div class="boost-tag" id="boost-display" style="display:none">🔥 AYUNO ACELERADO</div>
         <svg viewBox="0 0 280 280">
             <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
             <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
         </svg>
         <div class="reloj-grande">
             <span id="reloj-metabolico">00:00</span>
-            <small>AYUNO EFECTIVO</small>
+            <small>EFECTIVO</small>
         </div>
     </div>
 
     <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
 
     <div class="card">
-        <b>⚙️ Ajuste Manual (Si olvidaste marcar)</b>
-        <div style="display: flex; gap: 10px;">
+        <b style="font-size: 0.9rem;">⚙️ Ajuste de Horas (Olvidos)</b>
+        <div style="display: flex; gap: 12px;">
             <div style="flex: 1;">
-                <label>HORA DE INICIO</label>
+                <label>Empecé a las:</label>
                 <input type="datetime-local" id="manual-inicio" class="input-time" onchange="ajustarManual()">
             </div>
             <div style="flex: 1;">
-                <label>HORA DE FIN</label>
+                <label>Terminé a las:</label>
                 <input type="datetime-local" id="manual-fin" class="input-time" onchange="ajustarManual()">
             </div>
         </div>
-        <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 10px;">* Al cambiar estas fechas, el reloj se ajustará automáticamente.</p>
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.8rem; margin-bottom: 10px;">
-            <span>METABOLISMO</span>
-            <span style="color: var(--azul);">SAMSUNG HEALTH</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <b style="font-size: 0.9rem;">SAMSUNG HEALTH</b>
+            <span style="font-size: 0.7rem; color: var(--azul); font-weight: bold;">METABOLISMO 🔥</span>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <div class="stat-item"><b id="pasos-val">0</b><br><small>PASOS</small></div>
-            <div class="stat-item"><b id="burn-val" style="color: var(--rojo);">0</b><br><small>KCAL 🔥</small></div>
+        <div style="display: flex; gap: 12px;">
+            <div class="stat-item"><b id="pasos-val" style="font-size: 1.2rem;">0</b><br><small style="opacity:0.5; font-size:0.7rem;">PASOS</small></div>
+            <div class="stat-item"><b id="burn-val" style="font-size: 1.2rem; color: var(--rojo);">0</b><br><small style="opacity:0.5; font-size:0.7rem;">KCAL ENTRENAMIENTO</small></div>
         </div>
-        <button onclick="document.getElementById('inputSync').click()" style="background: var(--azul); color: white; padding: 12px; margin-top:10px; width:100%; font-size: 0.8rem;">
-            🔄 Sincronizar Samsung Health (Captura)
+        <button onclick="document.getElementById('inputSync').click()" style="background: #f0f7ff; color: var(--azul); padding: 15px; margin-top:15px; width:100%; font-size: 0.85rem; border-radius: 15px;">
+            🔄 Sincronizar con Captura
         </button>
         <input type="file" id="inputSync" accept="image/*" style="display:none" onchange="sincronizarActividad(event)">
     </div>
 
     <div class="card">
-        <b>Registrar Comida (IA) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:10px; box-sizing: border-box;" placeholder="¿Qué vas a comer?">
-        <div id="loading">✨ IA analizando...</div>
+        <b style="font-size: 0.9rem;">REGISTRAR COMIDA (IA)</b>
+        <input type="text" id="textComida" style="width:100%; padding:15px; margin:10px 0; border:1px solid #f0f0f0; border-radius:15px; box-sizing: border-box; background: #fafafa;" placeholder="Ej: Ensalada y salmón">
+        <div id="loading">✨ IA Analizando...</div>
         <div style="display: flex; gap: 10px;">
-            <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
-            <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
+            <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 15px;">+ Texto</button>
+            <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 15px;">📷 Foto</button>
         </div>
         <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
     </div>
@@ -109,7 +115,7 @@
         buscarModelo();
 
         function configurarClave() {
-            const key = prompt("Pega tu clave:", MI_LLAVE);
+            const key = prompt("Pega tu clave API:", MI_LLAVE);
             if (key) {
                 localStorage.setItem('gemini_key', key.trim());
                 MI_LLAVE = key.trim();
@@ -125,6 +131,7 @@
                 inicio = Date.now();
                 fin = null;
                 btn.innerText = "Terminar Ayuno";
+                btn.style.background = "var(--rojo)";
                 document.getElementById('manual-inicio').value = new Date(inicio - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
                 cronometro = setInterval(updateReloj, 1000);
             } else {
@@ -132,19 +139,19 @@
                 document.getElementById('manual-fin').value = new Date(fin - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
                 clearInterval(cronometro);
                 btn.innerText = "Iniciar Ayuno";
+                btn.style.background = "linear-gradient(135deg, #ff7e5f, #feb47b)";
             }
         }
 
         function ajustarManual() {
             const valInicio = document.getElementById('manual-inicio').value;
             const valFin = document.getElementById('manual-fin').value;
-            
             if(valInicio) {
                 inicio = new Date(valInicio).getTime();
                 if(!activo) {
                     activo = true;
-                    document.getElementById('btnAccion').innerText = "Terminar Ayuno";
                     cronometro = setInterval(updateReloj, 1000);
+                    document.getElementById('btnAccion').innerText = "Terminar Ayuno";
                 }
             }
             if(valFin) {
@@ -152,31 +159,26 @@
                 activo = false;
                 clearInterval(cronometro);
                 document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
-                updateReloj(); // Actualización final
+                updateReloj();
             }
         }
 
         function updateReloj() {
             let ahora = fin || Date.now();
             if(!inicio) return;
-
             const segsReales = Math.floor((ahora - inicio) / 1000);
-            const boostSegundos = Math.floor((kcalEntreno / 200) * 1800); // 200kcal = 30min
+            const boostSegundos = Math.floor((kcalEntreno / 200) * 1800);
             const segsEfectivos = Math.max(0, segsReales + boostSegundos);
 
-            // Reloj Real
             document.getElementById('tiempo-real').innerText = new Date(segsReales * 1000).toISOString().substr(11, 8);
-            
-            // Reloj Efectivo
             const h = Math.floor(segsEfectivos / 3600).toString().padStart(2, '0');
             const m = Math.floor((segsEfectivos % 3600) / 60).toString().padStart(2, '0');
             document.getElementById('reloj-metabolico').innerText = `${h}:${m}`;
 
-            // Boost
             const bDisplay = document.getElementById('boost-display');
             if(boostSegundos > 0) {
                 bDisplay.style.display = "block";
-                bDisplay.innerText = `🔥 +${Math.floor(boostSegundos/3600)}h ${Math.floor((boostSegundos%3600)/60)}m Extra`;
+                bDisplay.innerText = `🔥 +${Math.floor(boostSegundos/3600)}h ${Math.floor((boostSegundos%3600)/60)}m ACELERADO`;
             } else { bDisplay.style.display = "none"; }
 
             document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segsEfectivos / 57600, 1));
