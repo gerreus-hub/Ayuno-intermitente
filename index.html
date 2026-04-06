@@ -3,132 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Ayuno Inteligente</title>
+    <title>Mi Ayuno IA</title>
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
-        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); box-sizing: border-box; }
-        button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; padding: 15px; width: 100%; font-size: 1.1rem; margin-top: 10px; }
-        .reloj-container { position: relative; width: 220px; height: 220px; margin: 10px auto; display: flex; justify-content: center; align-items: center; }
-        svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-        circle { fill: none; stroke-width: 10; stroke-linecap: round; }
-        .fondo-gris { stroke: #f0ede4; }
-        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
-        .reloj-grande { font-size: 2.2rem; font-weight: bold; position: absolute; }
-        #loading { display: none; color: var(--azul); font-weight: bold; margin: 10px 0; text-align: center; }
-        .config-btn { position: absolute; top: 20px; right: 20px; background: none; font-size: 1.5rem; border: none; cursor: pointer; }
+        body { font-family: sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; margin-top: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
+        button { border: none; border-radius: 10px; font-weight: bold; cursor: pointer; padding: 12px; }
+        .btn-main { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; width: 100%; font-size: 1.1rem; }
+        .reloj { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: var(--naranja); }
+        #loading { display: none; color: var(--azul); margin: 10px 0; font-weight: bold; }
+        .config { position: absolute; top: 10px; right: 10px; font-size: 1.2rem; background: none; }
     </style>
 </head>
 <body>
 
-    <button class="config-btn" onclick="configurarClave()">⚙️</button>
+    <button class="config" onclick="setKey()">⚙️</button>
 
-    <div id="fase-nombre" style="font-weight: bold; color: var(--naranja); margin-top: 20px;">Estado: Alimentado</div>
-
-    <div class="reloj-container">
-        <svg viewBox="0 0 280 280">
-            <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
-            <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
-        </svg>
-        <div class="reloj-grande" id="reloj">00:00:00</div>
-    </div>
-
-    <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
+    <div class="reloj" id="reloj">00:00:00</div>
+    <button class="btn-main" id="btnAccion" onclick="toggleAyuno()">Iniciar Ayuno</button>
 
     <div class="card">
-        <b>Registrar Comida (IA) 🥗</b>
-        <input type="text" id="textComida" style="width:100%; padding:10px; margin:10px 0; border:1px solid #eee; border-radius:8px;" placeholder="Ej: Tortilla de patatas">
-        <div id="loading">✨ Pensando...</div>
+        <b>Registrar Comida (IA)</b>
+        <input type="text" id="comidaInput" style="width:100%; padding:10px; margin:10px 0; border:1px solid #ddd; border-radius:8px;" placeholder="Ej: Paella mixta">
+        <div id="loading">✨ Analizando...</div>
         <div style="display: flex; gap: 10px;">
-            <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
-            <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
+            <button onclick="enviarTexto()" style="flex:1; background: var(--verde); color: white;">+ Texto</button>
+            <button onclick="document.getElementById('fotoInput').click()" style="flex:1; background: var(--azul); color: white;">📷 Foto</button>
         </div>
-        <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
-        <p style="font-weight: bold; margin-top:15px;">Calorías de hoy: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
+        <input type="file" id="fotoInput" accept="image/*" capture="camera" style="display:none" onchange="enviarFoto(event)">
+        <p style="font-weight: bold; margin-top:15px;">Hoy: <span id="calTotal">0</span> kcal</p>
     </div>
 
     <script>
-        let MI_LLAVE = localStorage.getItem('gemini_key') || "";
-        let kcalTotal = 0;
-        let activo = false, inicio, cronometro;
+        let llave = localStorage.getItem('g_key') || "";
+        let kcal = 0;
+        let activo = false, inicio, timer;
 
-        function configurarClave() {
-            const key = prompt("Pega aquí tu clave (AIza...):", MI_LLAVE);
-            if (key) {
-                localStorage.setItem('gemini_key', key.trim());
-                MI_LLAVE = key.trim();
-                alert("✅ Clave guardada.");
-            }
+        function setKey() {
+            const k = prompt("Pega tu clave de Google (AIza...):", llave);
+            if(k) { localStorage.setItem('g_key', k.trim()); llave = k.trim(); alert("Clave guardada"); }
         }
 
-        async function llamarIA(prompt, img = null) {
-            if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
+        async function preguntarIA(promptTxt, imgB64 = null) {
+            if(!llave) return alert("Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
-            
-            // Endpoint v1beta con headers explícitos para evitar el "Method not found"
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
-            
-            const bodyData = {
+
+            // URL Simplificada v1beta
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + llave;
+
+            const payload = {
                 contents: [{
                     parts: [
-                        { text: prompt },
-                        ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])
+                        { text: promptTxt },
+                        ...(imgB64 ? [{ inline_data: { mime_type: "image/jpeg", data: imgB64 } }] : [])
                     ]
                 }]
             };
 
             try {
-                const res = await fetch(url, {
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }, // ESTA ES LA CLAVE
-                    body: JSON.stringify(bodyData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
-                
-                const data = await res.json();
-                
-                if (data.error) {
+
+                const data = await response.json();
+
+                if(data.error) {
                     alert("Error Google: " + data.error.message);
                 } else {
-                    const textoRespuesta = data.candidates[0].content.parts[0].text;
-                    const numero = textoRespuesta.match(/\d+/);
-                    if (numero) {
-                        kcalTotal += parseInt(numero[0]);
-                        document.getElementById('cal-total').innerText = kcalTotal;
-                        alert("¡Sumadas " + numero[0] + " kcal!");
+                    const respuesta = data.candidates[0].content.parts[0].text;
+                    const num = respuesta.match(/\d+/);
+                    if(num) {
+                        kcal += parseInt(num[0]);
+                        document.getElementById('calTotal').innerText = kcal;
+                        alert("Sumadas: " + num[0] + " kcal");
                     }
                 }
             } catch (e) {
-                alert("Error de conexión: " + e.message);
+                alert("Error de red: " + e.message);
             }
             document.getElementById('loading').style.display = "none";
         }
 
-        function analizarTexto() {
-            const t = document.getElementById('textComida').value;
-            if(t) llamarIA("Dime solo el número aproximado de calorías de: " + t);
-            document.getElementById('textComida').value = "";
+        function enviarTexto() {
+            const val = document.getElementById('comidaInput').value;
+            if(val) preguntarIA("¿Cuántas calorías tiene: " + val + "? Responde solo el número.");
+            document.getElementById('comidaInput').value = "";
         }
 
-        function analizarFoto(e) {
+        function enviarFoto(e) {
             const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Dime solo el número de calorías que ves aquí:", reader.result.split(',')[1]);
+            reader.onloadend = () => preguntarIA("¿Cuántas calorías ves? Responde solo el número.", reader.result.split(',')[1]);
             reader.readAsDataURL(e.target.files[0]);
         }
 
-        function controlarAyuno() {
+        function toggleAyuno() {
             activo = !activo;
             const btn = document.getElementById('btnAccion');
             if(activo) {
-                inicio = Date.now(); btn.innerText = "Terminar";
-                cronometro = setInterval(() => {
-                    const segs = Math.floor((Date.now() - inicio) / 1000);
-                    document.getElementById('reloj').innerText = new Date(segs * 1000).toISOString().substr(11, 8);
-                    document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segs / 57600, 1));
+                inicio = Date.now();
+                btn.innerText = "Terminar";
+                timer = setInterval(() => {
+                    const s = Math.floor((Date.now() - inicio) / 1000);
+                    document.getElementById('reloj').innerText = new Date(s * 1000).toISOString().substr(11, 8);
                 }, 1000);
             } else {
-                clearInterval(cronometro); btn.innerText = "Iniciar Ayuno";
-                document.getElementById('aro').style.strokeDashoffset = 754;
+                clearInterval(timer);
+                btn.innerText = "Iniciar Ayuno";
             }
         }
     </script>
