@@ -45,7 +45,7 @@
             <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
         </div>
         <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
-        <p style="font-weight: bold; margin-top:15px;">Ingesta Hoy: <span id="cal-total">0</span> kcal</p>
+        <p style="font-weight: bold; margin-top:15px;">Ingesta Hoy: <span id="cal-total" style="color:var(--verde)">0</span> kcal</p>
     </div>
 
     <div class="card">
@@ -54,16 +54,16 @@
     </div>
 
     <script>
-        // Recuperamos la clave guardada en el móvil
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
         let activo = false, inicio, cronometro, kcalTotal = 0;
 
         function configurarClave() {
-            const key = prompt("Pega aquí tu NUEVA clave (AIza...):", MI_LLAVE);
+            const key = prompt("Pega aquí tu clave (AIza...):", MI_LLAVE);
             if (key) {
-                localStorage.setItem('gemini_key', key.trim());
-                MI_LLAVE = key.trim();
-                alert("✅ Clave guardada correctamente");
+                const cleanKey = key.trim();
+                localStorage.setItem('gemini_key', cleanKey);
+                MI_LLAVE = cleanKey;
+                alert("✅ Clave guardada. ¡Prueba ahora!");
             }
         }
 
@@ -81,7 +81,10 @@
 
         function update() {
             const segs = Math.floor((Date.now() - inicio) / 1000);
-            document.getElementById('reloj').innerText = new Date(segs * 1000).toISOString().substr(11, 8);
+            const h = Math.floor(segs / 3600).toString().padStart(2, '0');
+            const m = Math.floor((segs % 3600) / 60).toString().padStart(2, '0');
+            const s = (segs % 60).toString().padStart(2, '0');
+            document.getElementById('reloj').innerText = `${h}:${m}:${s}`;
             document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segs / 57600, 1));
         }
 
@@ -89,47 +92,62 @@
             if(!MI_LLAVE) return alert("⚠️ Toca el ⚙️ y pega tu clave");
             document.getElementById('loading').style.display = "block";
             
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
-            const body = { contents: [{ parts: [{ text: prompt }, ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])] }] };
+            // CORRECCIÓN: Usamos la versión estable 'v1' para España
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MI_LLAVE}`;
+            
+            const body = {
+                contents: [{
+                    parts: [
+                        { text: prompt },
+                        ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])
+                    ]
+                }]
+            };
             
             try {
                 const res = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
                 const data = await res.json();
                 
                 if (data.error) {
-                    alert("Mensaje de Google: " + data.error.message);
+                    alert("Google dice: " + data.error.message);
                 } else {
                     const textRes = data.candidates[0].content.parts[0].text;
-                    const num = textRes.match(/\d+/)[0];
-                    kcalTotal += parseInt(num);
-                    document.getElementById('cal-total').innerText = kcalTotal;
-                    alert("Añadido: " + num + " kcal");
+                    const numMatch = textRes.match(/\d+/);
+                    if (numMatch) {
+                        const num = parseInt(numMatch[0]);
+                        kcalTotal += num;
+                        document.getElementById('cal-total').innerText = kcalTotal;
+                        alert("¡Detectado! +" + num + " kcal");
+                    } else {
+                        alert("Respuesta rara: " + textRes);
+                    }
                 }
             } catch (e) { 
-                alert("Error técnico: " + e.message); 
+                alert("Error de conexión: " + e.message); 
             }
             document.getElementById('loading').style.display = "none";
         }
 
         function analizarTexto() { 
             const t = document.getElementById('textComida').value; 
-            if(t) llamarIA("¿Cuántas calorías tiene aproximadamente: " + t + "? Responde solo el número."); 
+            if(t) llamarIA("Calcula las calorías de esto: " + t + ". Responde solo con el número."); 
             document.getElementById('textComida').value = "";
         }
 
         function analizarFoto(e) {
+            const file = e.target.files[0];
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64 = reader.result.split(',')[1];
-                llamarIA("¿Cuántas calorías ves en esta imagen? Responde solo con el número.", base64);
+                llamarIA("¿Cuántas calorías tiene este plato? Responde solo con el número.", base64);
             };
-            reader.readAsDataURL(e.target.files[0]);
+            reader.readAsDataURL(file);
         }
 
         function generarAnalisis() {
             const a = document.getElementById('analisis');
             a.style.display = "block";
-            a.innerText = "Tu consumo de hoy ha sido de " + kcalTotal + " kcal. ¡Buen progreso!";
+            a.innerText = "Hoy has consumido " + kcalTotal + " kcal. ¡Buen balance!";
         }
     </script>
 </body>
