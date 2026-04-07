@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ayuno Pro</title>
+    <title>Ayuno Pro 24h</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,27 +12,36 @@
     <meta name="theme-color" content="#fdfaf3">
 
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48Y2lyY2xlIGN4PSI5MCIgY3k9IjkwIiByPSI5MCIgZmlsbD0iI2ZmN2U1ZiIvPjxwYXRoIGQ9Ik05MCA0MGMtMjcuNiAwLTUwIDIyLjQtNTAgNTBzMjIuNCA1MCA1MCA1MCA1MC0yMi40IDUwLTUwUzExNy42IDQwIDkwIDQwWm0wIDkwYy0yMi4xIDAtNDAtMTcuOS00MC00MHMxNy45LTQwIDQwLTQwIDQwIDE3LjkgNDAgNDAtMTcuOSA0MC00MCA0MFoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNOTAgNjB2MzBoMzB2MTBINTBWMDBoMTBWMjBIMTBDMzguOCA2MCA0MCA2MS4yIDQwIDYwWiIgZmlsbD0iI2ZmZmYiLz48cGF0aCBkPSJNMTEwIDEwMWMtMTYuNiAwLTMwIDEzLjQtMzAgMzAgMCA1LjUgMS41IDEwLjQgNCAxNC42bDI2IDU1LjRBNSA1IDAgMCAwIDExMCAyMDBjMTQuOSAwIDI3LTEyLjEgMjctMjcgMC01LjUgMS41LTEwLjQgNC0xNC42bC0yNi01NS40QTUgNSAwIDAgMCAxMTAgMTAxWiIgZmlsbD0iI2ZmZmYiLz48L3N2Zz4=">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI5NiIgZmlsbD0iI2ZmN2U1ZiIvPjxwYXRoIGQ9Ik05NiA0NWMtMjguMiAwLTUxIDIzLjEtNTEgNTFzMjIuOCA1MSA1MSA1MSA1MS0yMy4xIDUxLTUxUy0yMi44IDQ1IDk2IDQ1Wm0wIDkxYy0yMi43IDAtNDAtMTguMy00MS00MXMxOC4zLTQxIDQxLTQxIDQxIDE4LjMgNDEgNDEtMTguMyA0MS00MSA0MVoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNOTYgNjZ2MzFoMzF2MTBINTBWMDBoMTBWMjBIMTBDMzguOCA2MCA0MCA2MS4yIDQwIDYwWiIgZmlsbD0iI2ZmZmYiLz48cGF0aCBkPSJNMTE2IDEwN2MtMTcuMCAwLTMxIDEzLjgtMzEgMzEgMCA1LjYgMS41IDEwLjYgNCAxNC45bDI2LjYgNTYuNUE1LjEgNS4xIDAgMCAwIDExNiAyMDhjMTUuMiAwIDI3LjYtMTIuNCAyNy42LTI3LjYgMC01LjYgMS41LTEwLjYgNC0xNC45bC0yNi42LTU2LjVBNS4xIDUuMSAwIDAgMCAxMTAgMTA3WiIgZmlsbD0iI2ZmZmYiLz48L3N2Zz4=">
 
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; --rojo: #ef4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; padding-bottom: 60px; -webkit-tap-highlight-color: transparent; }
+        
         .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
         button { border: none; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .reloj-container { position: relative; width: 270px; height: 270px; margin: 15px auto; display: flex; justify-content: center; align-items: center; }
+        
+        /* CÍRCULO ESTILO KOMPANION */
+        .reloj-container { position: relative; width: 300px; height: 300px; margin: 10px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-        circle { fill: none; stroke-width: 12; stroke-linecap: round; }
-        .fondo-gris { stroke: #f0ede4; }
-        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
-        .reloj-grande { font-size: 3rem; font-weight: bold; position: absolute; text-align: center; line-height: 1; }
-        .reloj-grande small { font-size: 0.8rem; display: block; color: var(--verde); margin-top: 5px; letter-spacing: 1px; }
-        #fase-status { font-weight: bold; color: var(--naranja); text-align: center; font-size: 0.9rem; margin-top: 10px; min-height: 1.2em; }
-        .btn-main { background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white; padding: 20px; width: 100%; font-size: 1.2rem; box-shadow: 0 8px 20px rgba(255, 126, 95, 0.25); margin-top: 10px; }
-        .config-btn { position: absolute; top: 25px; right: 25px; background: none; font-size: 1.6rem; opacity: 0.2; }
-        .stat-item { background: #fdfaf3; padding: 15px; border-radius: 18px; text-align: center; flex: 1; }
-        .boost-tag { background: var(--verde); color: white; padding: 6px 14px; border-radius: 25px; font-size: 0.75rem; position: absolute; top: 35px; z-index: 10; }
-        .input-time { width: 100%; padding: 12px; border: 1px solid #f0f0f0; border-radius: 12px; font-size: 0.9rem; margin-top: 5px; background: #fafafa; }
-        label { font-size: 0.7rem; font-weight: bold; opacity: 0.5; display: block; margin-top: 10px; }
+        circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+        .fondo-gris { stroke: #eeebe0; }
+        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; z-index: 5; }
+        
+        /* MARCADORES DE HORAS */
+        .tick { stroke: #d1cdc0; stroke-width: 2; }
+        .tick-heavy { stroke: var(--texto); stroke-width: 3; }
+        .hora-texto { fill: #a3a092; font-size: 10px; font-weight: bold; transform: rotate(90deg); transform-origin: center; text-anchor: middle; }
+
+        .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; text-align: center; line-height: 1; z-index: 10; }
+        .reloj-grande small { font-size: 0.75rem; display: block; color: var(--verde); margin-top: 5px; text-transform: uppercase; }
+
+        #fase-status { font-weight: bold; color: var(--naranja); text-align: center; font-size: 0.85rem; margin-top: 10px; background: #fff5f2; padding: 5px 15px; border-radius: 20px; }
+        .btn-main { background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white; padding: 18px; width: 100%; font-size: 1.1rem; box-shadow: 0 6px 15px rgba(255, 126, 95, 0.2); margin-top: 15px; }
+        .config-btn { position: absolute; top: 25px; right: 25px; background: none; font-size: 1.5rem; opacity: 0.2; }
+        .stat-item { background: #fdfaf3; padding: 12px; border-radius: 15px; text-align: center; flex: 1; }
+        .boost-tag { background: var(--verde); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; position: absolute; top: 45px; z-index: 20; }
+        .input-time { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.85rem; margin-top: 5px; background: #fafafa; }
+        label { font-size: 0.7rem; font-weight: bold; opacity: 0.4; display: block; margin-top: 8px; }
         #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
     </style>
 </head>
@@ -40,33 +49,36 @@
 
     <button class="config-btn" onclick="configurarClave()">⚙️</button>
 
-    <div style="font-weight: bold; color: var(--naranja); margin-top: 30px; font-size: 0.8rem;">CRONÓMETRO REAL: <span id="tiempo-real">00:00:00</span></div>
+    <div style="font-weight: bold; color: var(--naranja); margin-top: 30px; font-size: 0.75rem; opacity: 0.6;">TIEMPO TRANSCURRIDO: <span id="tiempo-real">00:00:00</span></div>
     
-    <div id="fase-status">Cargando estado...</div>
+    <div id="fase-status">Esperando inicio...</div>
 
     <div class="reloj-container">
-        <div class="boost-tag" id="boost-display" style="display:none">🔥 AYUNO ACELERADO</div>
-        <svg viewBox="0 0 280 280">
+        <div class="boost-tag" id="boost-display" style="display:none">🔥 ACELERADO</div>
+        <svg viewBox="0 0 280 280" id="svg-reloj">
             <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
+            
+            <g id="ticks-group"></g>
+
             <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
         </svg>
         <div class="reloj-grande">
             <span id="reloj-metabolico">00:00</span>
-            <small>EFECTIVO</small>
+            <small>Horas Ayuno</small>
         </div>
     </div>
 
     <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
 
     <div class="card">
-        <b style="font-size: 0.85rem;">⚙️ Ajuste Manual de Horas</b>
+        <b style="font-size: 0.8rem;">⚙️ Ajuste Manual</b>
         <div style="display: flex; gap: 10px;">
             <div style="flex: 1;">
-                <label>Empecé a las:</label>
+                <label>INICIO:</label>
                 <input type="datetime-local" id="manual-inicio" class="input-time" onchange="ajustarManual()">
             </div>
             <div style="flex: 1;">
-                <label>Terminé a las:</label>
+                <label>FIN:</label>
                 <input type="datetime-local" id="manual-fin" class="input-time" onchange="ajustarManual()">
             </div>
         </div>
@@ -75,21 +87,21 @@
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <b style="font-size: 0.85rem;">SAMSUNG HEALTH</b>
-            <span style="font-size: 0.7rem; color: var(--azul); font-weight: bold;">METABOLISMO 🔥</span>
+            <span style="font-size: 0.65rem; color: var(--azul); font-weight: bold;">METABOLISMO 🔥</span>
         </div>
         <div style="display: flex; gap: 10px;">
-            <div class="stat-item"><b id="pasos-val">0</b><br><small style="font-size:0.6rem; opacity:0.5;">PASOS</small></div>
-            <div class="stat-item"><b id="burn-val" style="color: var(--rojo);">0</b><br><small style="font-size:0.6rem; opacity:0.5;">KCAL QUEMADAS</small></div>
+            <div class="stat-item"><b id="pasos-val">0</b><br><small style="font-size:0.55rem; opacity:0.5;">PASOS</small></div>
+            <div class="stat-item"><b id="burn-val" style="color: var(--rojo);">0</b><br><small style="font-size:0.55rem; opacity:0.5;">KCAL 🔥</small></div>
         </div>
-        <button onclick="document.getElementById('inputSync').click()" style="background: #f0f7ff; color: var(--azul); padding: 12px; margin-top:12px; width:100%; font-size: 0.8rem; border-radius: 12px;">
-            🔄 Sincronizar Actividad
+        <button onclick="document.getElementById('inputSync').click()" style="background: #f0f7ff; color: var(--azul); padding: 12px; margin-top:10px; width:100%; font-size: 0.8rem; border-radius: 12px;">
+            🔄 Sincronizar Captura
         </button>
         <input type="file" id="inputSync" accept="image/*" style="display:none" onchange="sincronizarActividad(event)">
     </div>
 
     <div class="card">
         <b style="font-size: 0.85rem;">REGISTRAR COMIDA (IA)</b>
-        <input type="text" id="textComida" style="width:100%; padding:15px; margin:10px 0; border:1px solid #f0f0f0; border-radius:15px; box-sizing: border-box; background: #fafafa;" placeholder="Ej: Café y tostada">
+        <input type="text" id="textComida" style="width:100%; padding:15px; margin:10px 0; border:1px solid #f0f0f0; border-radius:15px; box-sizing: border-box; background: #fafafa;" placeholder="¿Qué has comido?">
         <div id="loading">✨ Analizando...</div>
         <div style="display: flex; gap: 10px;">
             <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
@@ -99,23 +111,54 @@
     </div>
 
     <script>
-        // PERSISTENCIA: Cargar datos guardados
+        // PERSISTENCIA
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
         let inicio = parseInt(localStorage.getItem('fast_start')) || null;
         let kcalEntreno = parseInt(localStorage.getItem('fast_kcal')) || 0;
         let activo = localStorage.getItem('fast_active') === 'true';
         let fin = parseInt(localStorage.getItem('fast_end')) || null;
         
-        let cronometro;
-        let MODELO_URL = "";
+        let cronometro, MODELO_URL = "";
 
         const fases = [
-            { h: 0, nombre: "Fase Anabólica", desc: "Nivel de azúcar subiendo..." },
-            { h: 4, nombre: "Fase Catabólica", desc: "Usando reservas de azúcar..." },
-            { h: 12, nombre: "Quema de Grasa", desc: "Empezando a quemar reservas..." },
-            { h: 16, nombre: "Autofagia", desc: "Limpieza celular activada ✨" },
-            { h: 24, nombre: "Cetosis Profunda", desc: "Máxima quema de grasa 🔥" }
+            { h: 0, nombre: "Anabólica", desc: "Procesando nutrientes" },
+            { h: 4, nombre: "Catabólica", desc: "Usando glucógeno" },
+            { h: 12, nombre: "Quema de Grasa", desc: "Lipólisis activa" },
+            { h: 16, nombre: "Autofagia", desc: "Limpieza celular ✨" },
+            { h: 22, nombre: "Cetosis", desc: "Máxima quema 🔥" }
         ];
+
+        // DIBUJAR MARCADORES (Estilo Kompanion)
+        function dibujarReloj() {
+            const grupo = document.getElementById('ticks-group');
+            for (let i = 0; i < 24; i++) {
+                const angulo = (i * 360 / 24);
+                const esPrincipal = i % 6 === 0;
+                
+                // Rayitas
+                const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                tick.setAttribute("x1", 140);
+                tick.setAttribute("y1", 20);
+                tick.setAttribute("x2", 140);
+                tick.setAttribute("y2", esPrincipal ? 32 : 28);
+                tick.setAttribute("class", esPrincipal ? "tick-heavy" : "tick");
+                tick.setAttribute("transform", `rotate(${angulo} 140 140)`);
+                grupo.appendChild(tick);
+
+                // Números (cada 6 horas)
+                if (esPrincipal) {
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    const rad = (angulo - 0) * Math.PI / 180;
+                    const x = 140 + 102 * Math.cos(rad - Math.PI/2);
+                    const y = 140 + 102 * Math.sin(rad - Math.PI/2);
+                    txt.setAttribute("x", x);
+                    txt.setAttribute("y", y);
+                    txt.setAttribute("class", "hora-texto");
+                    txt.textContent = i === 0 ? "24" : i;
+                    grupo.appendChild(txt);
+                }
+            }
+        }
 
         async function buscarModelo() {
             if(!MI_LLAVE) return;
@@ -126,40 +169,26 @@
                 if(mod) MODELO_URL = `https://generativelanguage.googleapis.com/v1beta/${mod.name}:generateContent?key=${MI_LLAVE}`;
             } catch(e) {}
         }
-        buscarModelo();
 
-        function configurarClave() {
-            const key = prompt("Pega tu clave API:", MI_LLAVE);
-            if (key) {
-                localStorage.setItem('gemini_key', key.trim());
-                MI_LLAVE = key.trim();
-                buscarModelo();
-                alert("✅ Clave guardada.");
-            }
-        }
-
-        // Recuperar UI al cargar
         window.onload = () => {
+            dibujarReloj();
+            buscarModelo();
             if(kcalEntreno) document.getElementById('burn-val').innerText = kcalEntreno;
             if(activo && inicio) {
                 document.getElementById('btnAccion').innerText = "Terminar Ayuno";
                 document.getElementById('btnAccion').style.background = "var(--rojo)";
                 document.getElementById('manual-inicio').value = toLocalTime(inicio);
                 cronometro = setInterval(updateReloj, 1000);
-            } else if (fin && inicio) {
+            } else if (fin) {
                 document.getElementById('manual-inicio').value = toLocalTime(inicio);
                 document.getElementById('manual-fin').value = toLocalTime(fin);
                 updateReloj();
-            } else {
-                document.getElementById('fase-status').innerText = "Listo para empezar";
             }
         };
 
         function controlarAyuno() {
             if(!activo) {
-                inicio = Date.now();
-                fin = null;
-                activo = true;
+                inicio = Date.now(); fin = null; activo = true;
                 localStorage.setItem('fast_start', inicio);
                 localStorage.setItem('fast_active', 'true');
                 localStorage.removeItem('fast_end');
@@ -168,44 +197,30 @@
                 document.getElementById('manual-inicio').value = toLocalTime(inicio);
                 cronometro = setInterval(updateReloj, 1000);
             } else {
-                fin = Date.now();
-                activo = false;
+                fin = Date.now(); activo = false;
                 localStorage.setItem('fast_end', fin);
                 localStorage.setItem('fast_active', 'false');
                 clearInterval(cronometro);
                 document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
                 document.getElementById('btnAccion').style.background = "linear-gradient(135deg, #ff7e5f, #feb47b)";
             }
-        }
-
-        function toLocalTime(time) {
-            return new Date(time - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
         }
 
         function ajustarManual() {
-            const valInicio = document.getElementById('manual-inicio').value;
-            const valFin = document.getElementById('manual-fin').value;
-            if(valInicio) {
-                inicio = new Date(valInicio).getTime();
-                localStorage.setItem('fast_start', inicio);
-            }
-            if(valFin) {
-                fin = new Date(valFin).getTime();
-                activo = false;
-                localStorage.setItem('fast_end', fin);
-                localStorage.setItem('fast_active', 'false');
+            const valI = document.getElementById('manual-inicio').value;
+            const valF = document.getElementById('manual-fin').value;
+            if(valI) { inicio = new Date(valI).getTime(); localStorage.setItem('fast_start', inicio); }
+            if(valF) { 
+                fin = new Date(valF).getTime(); activo = false;
+                localStorage.setItem('fast_end', fin); localStorage.setItem('fast_active', 'false');
                 clearInterval(cronometro);
                 document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
-                document.getElementById('btnAccion').style.background = "linear-gradient(135deg, #ff7e5f, #feb47b)";
             } else {
                 fin = null;
-                localStorage.removeItem('fast_end');
-                if(inicio && !activo) {
-                    activo = true;
-                    localStorage.setItem('fast_active', 'true');
+                if(inicio && !activo) { 
+                    activo = true; localStorage.setItem('fast_active', 'true'); 
                     cronometro = setInterval(updateReloj, 1000);
                     document.getElementById('btnAccion').innerText = "Terminar Ayuno";
-                    document.getElementById('btnAccion').style.background = "var(--rojo)";
                 }
             }
             updateReloj();
@@ -214,78 +229,87 @@
         function updateReloj() {
             let ahora = fin || Date.now();
             if(!inicio) return;
-            const segsReales = Math.floor((ahora - inicio) / 1000);
-            const boostSegundos = Math.floor((kcalEntreno / 200) * 1800);
-            const segsEfectivos = Math.max(0, segsReales + boostSegundos);
+            const segsR = Math.floor((ahora - inicio) / 1000);
+            const boostS = Math.floor((kcalEntreno / 200) * 1800);
+            const segsE = Math.max(0, segsR + boostS);
 
-            document.getElementById('tiempo-real').innerText = formatTime(segsReales, true);
-            document.getElementById('reloj-metabolico').innerText = formatTime(segsEfectivos, false);
+            document.getElementById('tiempo-real').innerText = formatTime(segsR, true);
+            document.getElementById('reloj-metabolico').innerText = formatTime(segsE, false);
 
-            // Actualizar Fase
-            const horasEfectivas = segsEfectivos / 3600;
-            let faseActual = fases[0];
-            fases.forEach(f => { if(horasEfectivas >= f.h) faseActual = f; });
-            document.getElementById('fase-status').innerText = `${faseActual.nombre}: ${faseActual.desc}`;
+            const horasE = segsE / 3600;
+            let fase = fases[0];
+            fases.forEach(f => { if(horasE >= f.h) fase = f; });
+            document.getElementById('fase-status').innerText = `${fase.nombre}: ${fase.desc}`;
 
-            // Boost visual
-            const bDisplay = document.getElementById('boost-display');
-            if(boostSegundos > 0) {
-                bDisplay.style.display = "block";
-                bDisplay.innerText = `🔥 +${formatBoost(boostSegundos)} ACELERADO`;
-            } else { bDisplay.style.display = "none"; }
+            const bDisp = document.getElementById('boost-display');
+            if(boostS > 0) {
+                bDisp.style.display = "block";
+                bDisp.innerText = `🔥 +${formatBoost(boostS)}`;
+            } else bDisp.style.display = "none";
 
-            document.getElementById('aro').style.strokeDashoffset = 754 - (754 * Math.min(segsEfectivos / 57600, 1));
+            // PROGRESO EN BASE A 24 HORAS
+            const circuloFull = 754; 
+            const offset = circuloFull - (circuloFull * Math.min(segsE / 86400, 1));
+            document.getElementById('aro').style.strokeDashoffset = offset;
         }
 
-        function formatTime(s, segs) {
+        function formatTime(s, showS) {
             const h = Math.floor(s / 3600).toString().padStart(2, '0');
             const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
             const sec = (s % 60).toString().padStart(2, '0');
-            return segs ? `${h}:${m}:${sec}` : `${h}:${m}`;
+            return showS ? `${h}:${m}:${sec}` : `${h}:${m}`;
         }
 
         function formatBoost(s) {
             return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
         }
 
-        async function llamarIA(promptText, img = null, esSync = false) {
-            if(!MODELO_URL) return alert("⚙️ Configura tu clave primero");
+        function toLocalTime(time) {
+            return new Date(time - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
+        }
+
+        function configurarClave() {
+            const key = prompt("Pega tu clave Gemini:", MI_LLAVE);
+            if (key) { localStorage.setItem('gemini_key', key.trim()); MI_LLAVE = key.trim(); buscarModelo(); alert("Listo."); }
+        }
+
+        async function llamarIA(prompt, img, esSync) {
+            if(!MODELO_URL) return alert("⚙️ Pon tu clave");
             document.getElementById('loading').style.display = "block";
-            const body = { contents: [{ parts: [{ text: promptText }, ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])] }] };
+            const body = { contents: [{ parts: [{ text: prompt }, ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])] }] };
             try {
                 const res = await fetch(MODELO_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                 const data = await res.json();
                 const resp = data.candidates[0].content.parts[0].text;
                 if(esSync) {
-                    const valores = resp.match(/\d+/g);
-                    if(valores && valores.length >= 2) {
-                        document.getElementById('pasos-val').innerText = valores[0];
-                        kcalEntreno = parseInt(valores[1]);
+                    const val = resp.match(/\d+/g);
+                    if(val && val.length >= 2) {
+                        document.getElementById('pasos-val').innerText = val[0];
+                        kcalEntreno = parseInt(val[1]);
                         localStorage.setItem('fast_kcal', kcalEntreno);
                         document.getElementById('burn-val').innerText = kcalEntreno;
-                        updateReloj();
-                        alert("✅ Datos sincronizados.");
+                        updateReloj(); alert("Sincronizado.");
                     }
-                } else { alert("Registrado: " + resp); }
+                } else alert("IA: " + resp);
             } catch (e) { alert("Error IA"); }
             document.getElementById('loading').style.display = "none";
         }
 
         function sincronizarActividad(e) {
             const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Samsung Health. Dime: pasos totales y calorías quemadas activas hoy. Formato: pasos,calorias. Nada más.", reader.result.split(',')[1], true);
+            reader.onloadend = () => llamarIA("Samsung Health: Pasos y calorías activas. Formato: pasos,calorias. Nada más.", reader.result.split(',')[1], true);
             reader.readAsDataURL(e.target.files[0]);
         }
 
         function analizarTexto() {
             const val = document.getElementById('textComida').value;
-            if(val) llamarIA("Calorías de: " + val + ". Solo número.");
+            if(val) llamarIA("Calorías de: " + val + ". Solo número.", null, false);
             document.getElementById('textComida').value = "";
         }
-        
+
         function analizarFoto(e) {
             const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Calorías en imagen. Solo número.", reader.result.split(',')[1]);
+            reader.onloadend = () => llamarIA("Calorías en imagen. Solo número.", reader.result.split(',')[1], false);
             reader.readAsDataURL(e.target.files[0]);
         }
     </script>
