@@ -27,13 +27,12 @@
         .fondo-gris { stroke: #eeebe0; }
         .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; z-index: 5; }
         
-        /* MARCADORES DE HORAS */
         .tick { stroke: #d1cdc0; stroke-width: 2; }
         .tick-heavy { stroke: var(--texto); stroke-width: 3; }
         .hora-texto { fill: #a3a092; font-size: 10px; font-weight: bold; transform: rotate(90deg); transform-origin: center; text-anchor: middle; }
 
         .reloj-grande { font-size: 2.8rem; font-weight: bold; position: absolute; text-align: center; line-height: 1; z-index: 10; }
-        .reloj-grande small { font-size: 0.75rem; display: block; color: var(--verde); margin-top: 5px; text-transform: uppercase; }
+        .reloj-grande small { font-size: 0.75rem; display: block; color: var(--texto); opacity: 0.5; margin-top: 5px; text-transform: uppercase; }
 
         #fase-status { font-weight: bold; color: var(--naranja); text-align: center; font-size: 0.85rem; margin-top: 10px; background: #fff5f2; padding: 5px 15px; border-radius: 20px; }
         .btn-main { background: linear-gradient(135deg, #ff7e5f, #feb47b); color: white; padding: 18px; width: 100%; font-size: 1.1rem; box-shadow: 0 6px 15px rgba(255, 126, 95, 0.2); margin-top: 15px; }
@@ -43,13 +42,19 @@
         .input-time { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.85rem; margin-top: 5px; background: #fafafa; }
         label { font-size: 0.7rem; font-weight: bold; opacity: 0.4; display: block; margin-top: 8px; }
         #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
+
+        /* AGUA */
+        .water-btn { background: #e0f2fe; color: var(--azul); width: 50px; height: 50px; font-size: 1.5rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; }
+        .water-grid { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <button class="config-btn" onclick="configurarClave()">⚙️</button>
 
-    <div style="font-weight: bold; color: var(--naranja); margin-top: 30px; font-size: 0.75rem; opacity: 0.6;">TIEMPO TRANSCURRIDO: <span id="tiempo-real">00:00:00</span></div>
+    <div style="font-weight: bold; color: var(--azul); margin-top: 30px; font-size: 0.75rem;">
+        ESTADO METABÓLICO: <span id="reloj-metabolico">00:00</span>
+    </div>
     
     <div id="fase-status">Esperando inicio...</div>
 
@@ -57,18 +62,32 @@
         <div class="boost-tag" id="boost-display" style="display:none">🔥 ACELERADO</div>
         <svg viewBox="0 0 280 280" id="svg-reloj">
             <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
-            
             <g id="ticks-group"></g>
-
             <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
         </svg>
         <div class="reloj-grande">
-            <span id="reloj-metabolico">00:00</span>
-            <small>Horas Ayuno</small>
+            <span id="tiempo-real">00:00:00</span>
+            <small>Tiempo de Ayuno</small>
         </div>
     </div>
 
     <button class="btn-main" id="btnAccion" onclick="controlarAyuno()">Iniciar Ayuno</button>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <b style="font-size: 0.85rem;">HIDRATACIÓN</b>
+            <span id="total-agua" style="font-size: 0.85rem; font-weight: bold; color: var(--azul);">0.0 L</span>
+        </div>
+        <div class="water-grid">
+            <button class="water-btn" onclick="cambiarAgua(1)">💧</button>
+            <div style="flex-grow: 1;">
+                <div style="font-size: 0.8rem; font-weight: bold;"><span id="contador-vasos">0</span> Vasos</div>
+                <div style="font-size: 0.6rem; opacity: 0.5;">VASOS DE 250ML</div>
+            </div>
+            <button onclick="cambiarAgua(-1)" style="background:none; color: var(--rojo); font-size: 0.7rem;">Quitar</button>
+            <button onclick="resetAgua()" style="background:none; color: var(--texto); font-size: 0.7rem; opacity: 0.3;">Reset</button>
+        </div>
+    </div>
 
     <div class="card">
         <b style="font-size: 0.8rem;">⚙️ Ajuste Manual</b>
@@ -87,7 +106,7 @@
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <b style="font-size: 0.85rem;">SAMSUNG HEALTH</b>
-            <span style="font-size: 0.65rem; color: var(--azul); font-weight: bold;">METABOLISMO 🔥</span>
+            <span style="font-size: 0.65rem; color: var(--azul); font-weight: bold;">ESFUERZO 🔥</span>
         </div>
         <div style="display: flex; gap: 10px;">
             <div class="stat-item"><b id="pasos-val">0</b><br><small style="font-size:0.55rem; opacity:0.5;">PASOS</small></div>
@@ -117,6 +136,7 @@
         let kcalEntreno = parseInt(localStorage.getItem('fast_kcal')) || 0;
         let activo = localStorage.getItem('fast_active') === 'true';
         let fin = parseInt(localStorage.getItem('fast_end')) || null;
+        let vasosAgua = parseInt(localStorage.getItem('fast_water')) || 0;
         
         let cronometro, MODELO_URL = "";
 
@@ -128,190 +148,20 @@
             { h: 22, nombre: "Cetosis", desc: "Máxima quema 🔥" }
         ];
 
-        // DIBUJAR MARCADORES (Estilo Kompanion)
         function dibujarReloj() {
             const grupo = document.getElementById('ticks-group');
             for (let i = 0; i < 24; i++) {
                 const angulo = (i * 360 / 24);
                 const esPrincipal = i % 6 === 0;
-                
-                // Rayitas
                 const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                tick.setAttribute("x1", 140);
-                tick.setAttribute("y1", 20);
-                tick.setAttribute("x2", 140);
+                tick.setAttribute("x1", 140); tick.setAttribute("y1", 20); tick.setAttribute("x2", 140);
                 tick.setAttribute("y2", esPrincipal ? 32 : 28);
                 tick.setAttribute("class", esPrincipal ? "tick-heavy" : "tick");
                 tick.setAttribute("transform", `rotate(${angulo} 140 140)`);
                 grupo.appendChild(tick);
-
-                // Números (cada 6 horas)
                 if (esPrincipal) {
                     const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
                     const rad = (angulo - 0) * Math.PI / 180;
                     const x = 140 + 102 * Math.cos(rad - Math.PI/2);
                     const y = 140 + 102 * Math.sin(rad - Math.PI/2);
-                    txt.setAttribute("x", x);
-                    txt.setAttribute("y", y);
-                    txt.setAttribute("class", "hora-texto");
-                    txt.textContent = i === 0 ? "24" : i;
-                    grupo.appendChild(txt);
-                }
-            }
-        }
-
-        async function buscarModelo() {
-            if(!MI_LLAVE) return;
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${MI_LLAVE}`);
-                const data = await res.json();
-                const mod = data.models.find(m => m.name.includes('flash'));
-                if(mod) MODELO_URL = `https://generativelanguage.googleapis.com/v1beta/${mod.name}:generateContent?key=${MI_LLAVE}`;
-            } catch(e) {}
-        }
-
-        window.onload = () => {
-            dibujarReloj();
-            buscarModelo();
-            if(kcalEntreno) document.getElementById('burn-val').innerText = kcalEntreno;
-            if(activo && inicio) {
-                document.getElementById('btnAccion').innerText = "Terminar Ayuno";
-                document.getElementById('btnAccion').style.background = "var(--rojo)";
-                document.getElementById('manual-inicio').value = toLocalTime(inicio);
-                cronometro = setInterval(updateReloj, 1000);
-            } else if (fin) {
-                document.getElementById('manual-inicio').value = toLocalTime(inicio);
-                document.getElementById('manual-fin').value = toLocalTime(fin);
-                updateReloj();
-            }
-        };
-
-        function controlarAyuno() {
-            if(!activo) {
-                inicio = Date.now(); fin = null; activo = true;
-                localStorage.setItem('fast_start', inicio);
-                localStorage.setItem('fast_active', 'true');
-                localStorage.removeItem('fast_end');
-                document.getElementById('btnAccion').innerText = "Terminar Ayuno";
-                document.getElementById('btnAccion').style.background = "var(--rojo)";
-                document.getElementById('manual-inicio').value = toLocalTime(inicio);
-                cronometro = setInterval(updateReloj, 1000);
-            } else {
-                fin = Date.now(); activo = false;
-                localStorage.setItem('fast_end', fin);
-                localStorage.setItem('fast_active', 'false');
-                clearInterval(cronometro);
-                document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
-                document.getElementById('btnAccion').style.background = "linear-gradient(135deg, #ff7e5f, #feb47b)";
-            }
-        }
-
-        function ajustarManual() {
-            const valI = document.getElementById('manual-inicio').value;
-            const valF = document.getElementById('manual-fin').value;
-            if(valI) { inicio = new Date(valI).getTime(); localStorage.setItem('fast_start', inicio); }
-            if(valF) { 
-                fin = new Date(valF).getTime(); activo = false;
-                localStorage.setItem('fast_end', fin); localStorage.setItem('fast_active', 'false');
-                clearInterval(cronometro);
-                document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
-            } else {
-                fin = null;
-                if(inicio && !activo) { 
-                    activo = true; localStorage.setItem('fast_active', 'true'); 
-                    cronometro = setInterval(updateReloj, 1000);
-                    document.getElementById('btnAccion').innerText = "Terminar Ayuno";
-                }
-            }
-            updateReloj();
-        }
-
-        function updateReloj() {
-            let ahora = fin || Date.now();
-            if(!inicio) return;
-            const segsR = Math.floor((ahora - inicio) / 1000);
-            const boostS = Math.floor((kcalEntreno / 200) * 1800);
-            const segsE = Math.max(0, segsR + boostS);
-
-            document.getElementById('tiempo-real').innerText = formatTime(segsR, true);
-            document.getElementById('reloj-metabolico').innerText = formatTime(segsE, false);
-
-            const horasE = segsE / 3600;
-            let fase = fases[0];
-            fases.forEach(f => { if(horasE >= f.h) fase = f; });
-            document.getElementById('fase-status').innerText = `${fase.nombre}: ${fase.desc}`;
-
-            const bDisp = document.getElementById('boost-display');
-            if(boostS > 0) {
-                bDisp.style.display = "block";
-                bDisp.innerText = `🔥 +${formatBoost(boostS)}`;
-            } else bDisp.style.display = "none";
-
-            // PROGRESO EN BASE A 24 HORAS
-            const circuloFull = 754; 
-            const offset = circuloFull - (circuloFull * Math.min(segsE / 86400, 1));
-            document.getElementById('aro').style.strokeDashoffset = offset;
-        }
-
-        function formatTime(s, showS) {
-            const h = Math.floor(s / 3600).toString().padStart(2, '0');
-            const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-            const sec = (s % 60).toString().padStart(2, '0');
-            return showS ? `${h}:${m}:${sec}` : `${h}:${m}`;
-        }
-
-        function formatBoost(s) {
-            return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
-        }
-
-        function toLocalTime(time) {
-            return new Date(time - new Date().getTimezoneOffset()*60000).toISOString().slice(0, 16);
-        }
-
-        function configurarClave() {
-            const key = prompt("Pega tu clave Gemini:", MI_LLAVE);
-            if (key) { localStorage.setItem('gemini_key', key.trim()); MI_LLAVE = key.trim(); buscarModelo(); alert("Listo."); }
-        }
-
-        async function llamarIA(prompt, img, esSync) {
-            if(!MODELO_URL) return alert("⚙️ Pon tu clave");
-            document.getElementById('loading').style.display = "block";
-            const body = { contents: [{ parts: [{ text: prompt }, ...(img ? [{ inline_data: { mime_type: "image/jpeg", data: img } }] : [])] }] };
-            try {
-                const res = await fetch(MODELO_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                const data = await res.json();
-                const resp = data.candidates[0].content.parts[0].text;
-                if(esSync) {
-                    const val = resp.match(/\d+/g);
-                    if(val && val.length >= 2) {
-                        document.getElementById('pasos-val').innerText = val[0];
-                        kcalEntreno = parseInt(val[1]);
-                        localStorage.setItem('fast_kcal', kcalEntreno);
-                        document.getElementById('burn-val').innerText = kcalEntreno;
-                        updateReloj(); alert("Sincronizado.");
-                    }
-                } else alert("IA: " + resp);
-            } catch (e) { alert("Error IA"); }
-            document.getElementById('loading').style.display = "none";
-        }
-
-        function sincronizarActividad(e) {
-            const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Samsung Health: Pasos y calorías activas. Formato: pasos,calorias. Nada más.", reader.result.split(',')[1], true);
-            reader.readAsDataURL(e.target.files[0]);
-        }
-
-        function analizarTexto() {
-            const val = document.getElementById('textComida').value;
-            if(val) llamarIA("Calorías de: " + val + ". Solo número.", null, false);
-            document.getElementById('textComida').value = "";
-        }
-
-        function analizarFoto(e) {
-            const reader = new FileReader();
-            reader.onloadend = () => llamarIA("Calorías en imagen. Solo número.", reader.result.split(',')[1], false);
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    </script>
-</body>
-</html>
+                    txt.setAttribute("x", x); txt.setAttribute("y
