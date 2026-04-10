@@ -36,7 +36,6 @@
         .boost-tag { background: var(--verde); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; position: absolute; top: 45px; z-index: 20; }
         .input-time { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.85rem; margin-top: 5px; background: #fafafa; }
         label { font-size: 0.7rem; font-weight: bold; opacity: 0.4; display: block; margin-top: 8px; }
-        #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
 
         .water-btn { background: #e0f2fe; color: var(--azul); width: 50px; height: 50px; font-size: 1.5rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; }
         .water-grid { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
@@ -117,7 +116,7 @@
         let activo = localStorage.getItem('fast_active') === 'true';
         let fin = parseInt(localStorage.getItem('fast_end')) || null;
         let vasosAgua = parseInt(localStorage.getItem('fast_water')) || 0;
-        let cronometro, MODELO_URL = "";
+        let cronometro;
 
         const fases = [
             { h: 0, nombre: "Anabólica", desc: "Procesando nutrientes" },
@@ -140,10 +139,21 @@
 
         function controlarAyuno() {
             if(!activo) {
-                inicio = Date.now(); fin = null; activo = true;
+                // RESET TOTAL AL INICIAR
+                inicio = Date.now(); 
+                fin = null; 
+                activo = true;
+                kcalEntreno = 0; // Reset de calorías para que el estado metabólico empiece en 0
+                
                 localStorage.setItem('fast_start', inicio);
                 localStorage.setItem('fast_active', 'true');
+                localStorage.setItem('fast_kcal', 0);
                 localStorage.removeItem('fast_end');
+                
+                // Reset visual de los stats de Samsung Health
+                document.getElementById('pasos-val').innerText = "0";
+                document.getElementById('burn-val').innerText = "0";
+
                 document.getElementById('btnAccion').innerText = "Terminar Ayuno";
                 document.getElementById('btnAccion').style.background = "var(--rojo)";
                 cronometro = setInterval(updateReloj, 1000);
@@ -158,40 +168,31 @@
             updateReloj();
         }
 
-        function cambiarAgua(n) {
-            vasosAgua = Math.max(0, vasosAgua + n);
-            localStorage.setItem('fast_water', vasosAgua);
-            actualizarUI_Agua();
-        }
-
-        function resetAgua() {
-            vasosAgua = 0;
-            localStorage.setItem('fast_water', 0);
-            actualizarUI_Agua();
-        }
-
-        function actualizarUI_Agua() {
-            document.getElementById('contador-vasos').innerText = vasosAgua;
-            document.getElementById('total-agua').innerText = (vasosAgua * 0.25).toFixed(1) + " L";
-        }
-
         function updateReloj() {
             if(!inicio) return;
             let ahora = activo ? Date.now() : fin;
             const segsR = Math.floor((ahora - inicio) / 1000);
+            
+            // segsE es el tiempo metabólico (tiempo real + bonus de ejercicio)
             const boostS = Math.floor((kcalEntreno / 200) * 1800);
             const segsE = Math.max(0, segsR + boostS);
 
+            // 1. Cronómetro digital (Tiempo Real)
             document.getElementById('tiempo-real').innerText = formatTime(segsR, true);
+            
+            // 2. Reloj Metabólico superior (Empieza en 0 si kcalEntreno es 0)
             document.getElementById('reloj-metabolico').innerText = formatTime(segsE, false);
 
+            // 3. Fase Metabólica (Basada en el tiempo efectivo)
             const horasE = segsE / 3600;
             let fase = fases[0];
             fases.forEach(f => { if(horasE >= f.h) fase = f; });
             document.getElementById('fase-status').innerText = `${fase.nombre}: ${fase.desc}`;
 
+            // 4. LA RUEDA (Sincronizada con el cronómetro real para que empiece en 0)
             const circuloFull = 754; 
-            const offset = circuloFull - (circuloFull * Math.min(segsE / 86400, 1));
+            // Usamos segsR para que el aro empiece vacío y se llene a la par que el tiempo real
+            const offset = circuloFull - (circuloFull * Math.min(segsR / 86400, 1));
             document.getElementById('aro').style.strokeDashoffset = offset;
         }
 
@@ -214,6 +215,23 @@
                 tick.setAttribute("transform", `rotate(${angulo} 140 140)`);
                 grupo.appendChild(tick);
             }
+        }
+
+        function cambiarAgua(n) {
+            vasosAgua = Math.max(0, vasosAgua + n);
+            localStorage.setItem('fast_water', vasosAgua);
+            actualizarUI_Agua();
+        }
+
+        function resetAgua() {
+            vasosAgua = 0;
+            localStorage.setItem('fast_water', 0);
+            actualizarUI_Agua();
+        }
+
+        function actualizarUI_Agua() {
+            document.getElementById('contador-vasos').innerText = vasosAgua;
+            document.getElementById('total-agua').innerText = (vasosAgua * 0.25).toFixed(1) + " L";
         }
         
         function configurarClave() {
