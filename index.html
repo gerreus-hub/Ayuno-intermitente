@@ -7,11 +7,7 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Ayuno Pro">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#fdfaf3">
-
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48Y2lyY2xlIGN4PSI5MCIgY3k9IjkwIiByPSI5MCIgZmlsbD0iI2ZmN2U1ZiIvPjxwYXRoIGQ9Ik05MCA0MGMtMjcuNiAwLTUwIDIyLjQtNTAgNTBzMjIuNCA1MCA1MCA1MCA1MC0yMi40IDUwLTUwUzExNy42IDQwIDkwIDQwWm0wIDkwYy0yMi4xIDAtNDAtMTcuOS00MC00MHMxNy45LTQwIDQwLTQwIDQwIDE3LjkgNDAgNDAtMTcuOSA0MC00MCA0MFoiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNOTAgNjB2MzBoMzB2MTBINTBWMDBoMTBWMjBIMTBDMzguOCA2MCA0MCA2MS4yIDQwIDYwWiIgZmlsbD0iI2ZmZmYiLz48cGF0aCBkPSJNMTEwIDEwMWMtMTYuNiAwLTMwIDEzLjQtMzAgMzAgMCA1LjUgMS41IDEwLjQgNCAxNC42bDI2IDU1LjRBNSA1IDAgMCAwIDExMCAyMDBjMTQuOSAwIDI3LTEyLjEgMjctMjcgMC01LjUgMS41LTEwLjQgNC0xNC42bC0yNi01NS40QTUgNSAwIDAgMCAxMTAgMTAxWiIgZmlsbD0iI2ZmZmYiLz48L3N2Zz4=">
 
     <style>
         :root { --crema: #fdfaf3; --naranja: #ff7e5f; --texto: #4a3f35; --azul: #3b82f6; --verde: #10b981; --rojo: #ef4444; }
@@ -20,12 +16,11 @@
         .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 25px; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
         button { border: none; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         
-        /* CÍRCULO ESTILO KOMPANION */
         .reloj-container { position: relative; width: 300px; height: 300px; margin: 10px auto; display: flex; justify-content: center; align-items: center; }
         svg { transform: rotate(-90deg); width: 100%; height: 100%; }
         circle { fill: none; stroke-width: 8; stroke-linecap: round; }
         .fondo-gris { stroke: #eeebe0; }
-        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; z-index: 5; }
+        .progreso-color { stroke: var(--naranja); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 1s linear; }
         
         .tick { stroke: #d1cdc0; stroke-width: 2; }
         .tick-heavy { stroke: var(--texto); stroke-width: 3; }
@@ -43,7 +38,6 @@
         label { font-size: 0.7rem; font-weight: bold; opacity: 0.4; display: block; margin-top: 8px; }
         #loading { display: none; color: var(--azul); font-weight: bold; text-align: center; margin: 10px 0; }
 
-        /* AGUA */
         .water-btn { background: #e0f2fe; color: var(--azul); width: 50px; height: 50px; font-size: 1.5rem; border-radius: 15px; display: flex; align-items: center; justify-content: center; }
         .water-grid { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
     </style>
@@ -60,7 +54,7 @@
 
     <div class="reloj-container">
         <div class="boost-tag" id="boost-display" style="display:none">🔥 ACELERADO</div>
-        <svg viewBox="0 0 280 280" id="svg-reloj">
+        <svg viewBox="0 0 280 280">
             <circle class="fondo-gris" cx="140" cy="140" r="120"></circle>
             <g id="ticks-group"></g>
             <circle class="progreso-color" id="aro" cx="140" cy="140" r="120"></circle>
@@ -84,8 +78,8 @@
                 <div style="font-size: 0.8rem; font-weight: bold;"><span id="contador-vasos">0</span> Vasos</div>
                 <div style="font-size: 0.6rem; opacity: 0.5;">VASOS DE 250ML</div>
             </div>
-            <button onclick="cambiarAgua(-1)" style="background:none; color: var(--rojo); font-size: 0.7rem;">Quitar</button>
-            <button onclick="resetAgua()" style="background:none; color: var(--texto); font-size: 0.7rem; opacity: 0.3;">Reset</button>
+            <button onclick="cambiarAgua(-1)" style="background:none; color: var(--rojo); font-size: 0.7rem; border:none; cursor:pointer;">Quitar</button>
+            <button onclick="resetAgua()" style="background:none; color: var(--texto); font-size: 0.7rem; opacity: 0.3; border:none; cursor:pointer;">Reset</button>
         </div>
     </div>
 
@@ -112,32 +106,17 @@
             <div class="stat-item"><b id="pasos-val">0</b><br><small style="font-size:0.55rem; opacity:0.5;">PASOS</small></div>
             <div class="stat-item"><b id="burn-val" style="color: var(--rojo);">0</b><br><small style="font-size:0.55rem; opacity:0.5;">KCAL 🔥</small></div>
         </div>
-        <button onclick="document.getElementById('inputSync').click()" style="background: #f0f7ff; color: var(--azul); padding: 12px; margin-top:10px; width:100%; font-size: 0.8rem; border-radius: 12px;">
-            🔄 Sincronizar Captura
-        </button>
+        <button onclick="document.getElementById('inputSync').click()" style="background: #f0f7ff; color: var(--azul); padding: 12px; margin-top:10px; width:100%; font-size: 0.8rem; border-radius: 12px;">🔄 Sincronizar Captura</button>
         <input type="file" id="inputSync" accept="image/*" style="display:none" onchange="sincronizarActividad(event)">
     </div>
 
-    <div class="card">
-        <b style="font-size: 0.85rem;">REGISTRAR COMIDA (IA)</b>
-        <input type="text" id="textComida" style="width:100%; padding:15px; margin:10px 0; border:1px solid #f0f0f0; border-radius:15px; box-sizing: border-box; background: #fafafa;" placeholder="¿Qué has comido?">
-        <div id="loading">✨ Analizando...</div>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="analizarTexto()" style="flex:1; background: var(--verde); color: white; padding: 12px;">+ Texto</button>
-            <button onclick="document.getElementById('inputFoto').click()" style="flex:1; background: var(--azul); color: white; padding: 12px;">📷 Foto</button>
-        </div>
-        <input type="file" id="inputFoto" accept="image/*" capture="camera" style="display:none" onchange="analizarFoto(event)">
-    </div>
-
     <script>
-        // PERSISTENCIA
         let MI_LLAVE = localStorage.getItem('gemini_key') || "";
         let inicio = parseInt(localStorage.getItem('fast_start')) || null;
         let kcalEntreno = parseInt(localStorage.getItem('fast_kcal')) || 0;
         let activo = localStorage.getItem('fast_active') === 'true';
         let fin = parseInt(localStorage.getItem('fast_end')) || null;
         let vasosAgua = parseInt(localStorage.getItem('fast_water')) || 0;
-        
         let cronometro, MODELO_URL = "";
 
         const fases = [
@@ -147,6 +126,81 @@
             { h: 16, nombre: "Autofagia", desc: "Limpieza celular ✨" },
             { h: 22, nombre: "Cetosis", desc: "Máxima quema 🔥" }
         ];
+
+        window.onload = () => {
+            dibujarReloj();
+            actualizarUI_Agua();
+            if(activo && inicio) {
+                document.getElementById('btnAccion').innerText = "Terminar Ayuno";
+                document.getElementById('btnAccion').style.background = "var(--rojo)";
+                cronometro = setInterval(updateReloj, 1000);
+            }
+            updateReloj();
+        };
+
+        function controlarAyuno() {
+            if(!activo) {
+                inicio = Date.now(); fin = null; activo = true;
+                localStorage.setItem('fast_start', inicio);
+                localStorage.setItem('fast_active', 'true');
+                localStorage.removeItem('fast_end');
+                document.getElementById('btnAccion').innerText = "Terminar Ayuno";
+                document.getElementById('btnAccion').style.background = "var(--rojo)";
+                cronometro = setInterval(updateReloj, 1000);
+            } else {
+                fin = Date.now(); activo = false;
+                localStorage.setItem('fast_end', fin);
+                localStorage.setItem('fast_active', 'false');
+                clearInterval(cronometro);
+                document.getElementById('btnAccion').innerText = "Iniciar Ayuno";
+                document.getElementById('btnAccion').style.background = "linear-gradient(135deg, #ff7e5f, #feb47b)";
+            }
+            updateReloj();
+        }
+
+        function cambiarAgua(n) {
+            vasosAgua = Math.max(0, vasosAgua + n);
+            localStorage.setItem('fast_water', vasosAgua);
+            actualizarUI_Agua();
+        }
+
+        function resetAgua() {
+            vasosAgua = 0;
+            localStorage.setItem('fast_water', 0);
+            actualizarUI_Agua();
+        }
+
+        function actualizarUI_Agua() {
+            document.getElementById('contador-vasos').innerText = vasosAgua;
+            document.getElementById('total-agua').innerText = (vasosAgua * 0.25).toFixed(1) + " L";
+        }
+
+        function updateReloj() {
+            if(!inicio) return;
+            let ahora = activo ? Date.now() : fin;
+            const segsR = Math.floor((ahora - inicio) / 1000);
+            const boostS = Math.floor((kcalEntreno / 200) * 1800);
+            const segsE = Math.max(0, segsR + boostS);
+
+            document.getElementById('tiempo-real').innerText = formatTime(segsR, true);
+            document.getElementById('reloj-metabolico').innerText = formatTime(segsE, false);
+
+            const horasE = segsE / 3600;
+            let fase = fases[0];
+            fases.forEach(f => { if(horasE >= f.h) fase = f; });
+            document.getElementById('fase-status').innerText = `${fase.nombre}: ${fase.desc}`;
+
+            const circuloFull = 754; 
+            const offset = circuloFull - (circuloFull * Math.min(segsE / 86400, 1));
+            document.getElementById('aro').style.strokeDashoffset = offset;
+        }
+
+        function formatTime(s, showS) {
+            const h = Math.floor(s / 3600).toString().padStart(2, '0');
+            const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+            const sec = (s % 60).toString().padStart(2, '0');
+            return showS ? `${h}:${m}:${sec}` : `${h}:${m}`;
+        }
 
         function dibujarReloj() {
             const grupo = document.getElementById('ticks-group');
@@ -159,9 +213,13 @@
                 tick.setAttribute("class", esPrincipal ? "tick-heavy" : "tick");
                 tick.setAttribute("transform", `rotate(${angulo} 140 140)`);
                 grupo.appendChild(tick);
-                if (esPrincipal) {
-                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    const rad = (angulo - 0) * Math.PI / 180;
-                    const x = 140 + 102 * Math.cos(rad - Math.PI/2);
-                    const y = 140 + 102 * Math.sin(rad - Math.PI/2);
-                    txt.setAttribute("x", x); txt.setAttribute("y
+            }
+        }
+        
+        function configurarClave() {
+            const key = prompt("Pega tu clave Gemini:", MI_LLAVE);
+            if (key) { localStorage.setItem('gemini_key', key.trim()); MI_LLAVE = key.trim(); alert("Listo."); }
+        }
+    </script>
+</body>
+</html>
